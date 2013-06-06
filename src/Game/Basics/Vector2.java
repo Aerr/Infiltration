@@ -2,7 +2,7 @@ package Game.Basics;
 
 public class Vector2 {
 	
-	public static Vector2 Zero = new Vector2(0,0);
+	public static Vector2 Zero() { return (new Vector2(0,0)); }
 	public double X, Y;
 
 	public Vector2 (double x, double y)
@@ -75,7 +75,7 @@ public class Vector2 {
 			return (new Vector2(newX, newY));
 		}
 		else
-			return (Vector2.Zero);
+			return (Vector2.Zero());
 	}
 
 	public boolean Equals(Vector2 v)

@@ -61,7 +61,7 @@ public class Level {
 		inEditor = false;
 
 		mode = Mode.Floor; 
-		temp = Vector2.Zero;
+		temp = Vector2.Zero();
 	}
 
 	public LinkedList<Rectangle> Load(String file)
@@ -182,7 +182,7 @@ public class Level {
 			Save_Level();
 		else if (ip.isKeyPressed(Input.KEY_X))
 		{
-			temp = Vector2.Zero;
+			temp = Vector2.Zero();
 
 			if (mode == Mode.Floor)
 				mode = Mode.Wall;
@@ -205,7 +205,7 @@ public class Level {
 				mouse.Add(new Vector2(gridW[mode.i()],gridH[mode.i()]));
 				if (temp.X != mouse.X && temp.Y != mouse.Y)
 					rectangles.add(new Rectangle((int)temp.X, (int)temp.Y, (int)Math.abs(mouse.X - temp.X), (int)Math.abs(mouse.Y - temp.Y)));
-				temp = Vector2.Zero;
+				temp = Vector2.Zero();
 			}
 		}
 	}

@@ -17,14 +17,14 @@ import org.newdawn.slick.geom.Polygon;
 
 import Game.Basics.Line;
 import Game.Basics.Rect;
-import Game.Basics.Sphere;
 import Game.Basics.Vector2;
 
-public class Player extends Sphere {
+public class Player {
 	private enum Move {
 		Crouch, IdleCrouch, IdleStand, Sprint, Walk,
 	}
 
+	private static final int size = 72;
 	private static final int bounds = 320;
 	private static final int crouchSpeed = 2;
 	private static final int normalSpeed = 5;
@@ -42,12 +42,12 @@ public class Player extends Sphere {
 	private Vector2 speed;
 	private Rectangle r2;
 	private Rectangle intersect;
+	public Vector2 pos;
 
-	public Player(int w, int h, Image sprite, Image debug) {
-		super(w / 2, h / 2, w, h, 0, 1.5, debug, false);
-
+	public Player(int w, int h, Image sprite) {
+		this.pos = Vector2.Zero();
+		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
-		speed = Vector2.Zero;
 		moveSpeed = normalSpeed;
 		SpriteSheet spritesheet = new SpriteSheet(sprite, bounds, bounds);
 
@@ -67,8 +67,7 @@ public class Player extends Sphere {
 		return (scale * bounds);
 	}
 
-	public void HandleInput(Input ip, double dt, LinkedList<Line> lines,
-			LinkedList<Rectangle> rects) throws SlickException {		
+	public void HandleInput(Input ip, double dt) throws SlickException {		
 		// /** Movement Speed control
 		if (ip.isKeyDown(Input.KEY_LSHIFT)) {
 			moveSpeed = sprintSpeed;
@@ -163,7 +162,11 @@ public class Player extends Sphere {
 			}
 		}
 		// **/
+	}
 
+
+	public void Update(LinkedList<Rectangle> rects)
+	{
 		boolean colliding = false;
 		for (int i = 0; i < rects.size(); i++)
 		{
@@ -234,12 +237,12 @@ public class Player extends Sphere {
 		else
 			return 0;
 	}
-	
+
 	public void Render(GameContainer gc, Graphics g, LinkedList<Light> lights) throws SlickException {
 		Color startCol = new Color(0, 0, 0, 0.25f);
 
 		g.drawRect((float)r2.getX(), (float)r2.getY(),(float)r2.getWidth(), (float)r2.getHeight());
-		
+
 		if (intersect != null)
 			g.drawRect((float)intersect.getX(), (float)intersect.getY(),(float)intersect.getWidth(), (float)intersect.getHeight());
 		for (int i = 0; i < lights.size(); i++)

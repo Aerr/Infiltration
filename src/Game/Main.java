@@ -35,11 +35,9 @@ public class Main extends BasicGame {
 		app.setMouseGrabbed(false);
 		state = GameState.inGame;
 
-		Image img_sphere = null;
 		Image img_perso = null;
 		Image img_floor = null;
 		try {
-			img_sphere = new Image("images/ball.png");
 			img_perso = new Image("images/animations.png");
 			img_floor  = new Image("images/floor.jpg");
 			img_wall  = new Image("images/wall.jpg");
@@ -48,7 +46,7 @@ public class Main extends BasicGame {
 			e.printStackTrace();
 		}
 
-		objects = new ObjectsHandler(width, height, img_sphere, img_perso, img_floor, img_wall, img_light);
+		objects = new ObjectsHandler(width, height, img_perso, img_floor, img_wall, img_light);
 		cam = new Camera(width / 2, height / 2);
 	}
 
@@ -76,11 +74,6 @@ public class Main extends BasicGame {
 
 		objects.update(bt * (double) delta / 1000f, mouseX, mouseY, ip, cam.getPos());
 
-		if (ip.isKeyPressed(Input.KEY_G))
-		{
-			System.out.printf("FPS : %d\n", gc.getFPS());
-			objects.gravityChanger();
-		}
 		// Press tab to restart
 		if (ip.isKeyPressed(Input.KEY_TAB)) {
 			// bt = 1.0f;
