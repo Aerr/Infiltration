@@ -19,8 +19,10 @@ import Game.Basics.Line;
 import Game.Basics.Rect;
 import Game.Basics.Vector2;
 
-public class Player {
-	private enum Move {
+public class Player
+{
+	private enum Move
+	{
 		Crouch, IdleCrouch, IdleStand, Sprint, Walk,
 	}
 
@@ -44,14 +46,25 @@ public class Player {
 	private Rectangle intersect;
 	public Vector2 pos;
 
-	public Player(int w, int h, Image sprite) {
-		this.pos = Vector2.Zero();
+	public Vector2 GetPos()
+	{
+		return (new Vector2(pos.X - size * scale, pos.Y - size * scale));
+	}
+
+	private float GetSize()
+	{
+		return (scale * bounds);
+	}
+
+	public Player(int w, int h, Image sprite)
+	{
+		this.pos = new Vector2(600, 200);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
 		moveSpeed = normalSpeed;
 		SpriteSheet spritesheet = new SpriteSheet(sprite, bounds, bounds);
 
-		r2 = new Rectangle((int)pos.X, (int)pos.Y, (int)(size * 1.5f), (int)(size * 1.5f));
+		r2 = new Rectangle((int) pos.X, (int) pos.Y, (int) (size * 1.5f), (int) (size * 1.5f));
 
 		stand_idle = new Animation(spritesheet, 0, 0, 13, 0, true, 100, true);
 		stand_walk = new Animation(spritesheet, 0, 1, 13, 1, true, 100, true);
@@ -59,44 +72,46 @@ public class Player {
 		crouch_walk = new Animation(spritesheet, 0, 3, 13, 3, true, 100, true);
 	}
 
-	public Vector2 GetPos() {
-		return (new Vector2(pos.X - size * scale, pos.Y - size * scale));
-	}
-
-	private float GetSize() {
-		return (scale * bounds);
-	}
-
-	public void HandleInput(Input ip, double dt) throws SlickException {		
+	public void HandleInput(Input ip, double dt) throws SlickException
+	{
 		// /** Movement Speed control
-		if (ip.isKeyDown(Input.KEY_LSHIFT)) {
+		if (ip.isKeyDown(Input.KEY_LSHIFT))
+		{
 			moveSpeed = sprintSpeed;
 			move = Move.Sprint;
-		} else if (ip.isKeyDown(Input.KEY_LCONTROL)) {
+		}
+		else if (ip.isKeyDown(Input.KEY_LCONTROL))
+		{
 			moveSpeed = crouchSpeed;
 			move = Move.Crouch;
-		} else {
+		}
+		else
+		{
 			moveSpeed = normalSpeed;
 			move = Move.Walk;
 		}
 		// **/
 
 		// /** If moving
-		if (ip.isKeyDown(Input.KEY_UP) || ip.isKeyDown(Input.KEY_Z) || ip.isKeyDown(Input.KEY_DOWN) || ip.isKeyDown(Input.KEY_S)
-				|| ip.isKeyDown(Input.KEY_RIGHT) || ip.isKeyDown(Input.KEY_D)
-				|| ip.isKeyDown(Input.KEY_LEFT) || ip.isKeyDown(Input.KEY_Q)) {
+		if (ip.isKeyDown(Input.KEY_UP)
+				|| ip.isKeyDown(Input.KEY_Z)
+				|| ip.isKeyDown(Input.KEY_DOWN)
+				|| ip.isKeyDown(Input.KEY_S)
+				|| ip.isKeyDown(Input.KEY_RIGHT)
+				|| ip.isKeyDown(Input.KEY_D)
+				|| ip.isKeyDown(Input.KEY_LEFT)
+				|| ip.isKeyDown(Input.KEY_Q))
+		{
 			// /** If sudden change in direction
-			if (speed.Y != 0
-					&& (ip.isKeyPressed(Input.KEY_UP) || ip
-							.isKeyPressed(Input.KEY_DOWN))) {
+			if (speed.Y != 0 && (ip.isKeyPressed(Input.KEY_UP) || ip.isKeyPressed(Input.KEY_DOWN)))
+			{
 				if (speed.Y < 0)
 					speed.Y = -0.25;
 				else
 					speed.Y = 0.25;
 			}
-			if (speed.X != 0
-					&& (ip.isKeyPressed(Input.KEY_RIGHT) || ip
-							.isKeyPressed(Input.KEY_LEFT))) {
+			if (speed.X != 0 && (ip.isKeyPressed(Input.KEY_RIGHT) || ip.isKeyPressed(Input.KEY_LEFT)))
+			{
 				if (speed.X < 0)
 					speed.X = -0.25;
 				else
@@ -105,40 +120,49 @@ public class Player {
 			// **/
 
 			// /** Moves depending on inputs and acceleration
-			if (ip.isKeyDown(Input.KEY_UP) || ip.isKeyDown(Input.KEY_Z) && speed.Y > -1) {
+			if (ip.isKeyDown(Input.KEY_UP) || ip.isKeyDown(Input.KEY_Z) && speed.Y > -1)
+			{
 				speed.Y -= dt * 2;
 				if (speed.Y < -1)
 					speed.Y = -1;
-			} else if (speed.Y < 0)
+			}
+			else if (speed.Y < 0)
 				speed.Y += dt * 4;
 
-			if (ip.isKeyDown(Input.KEY_DOWN) || ip.isKeyDown(Input.KEY_S) && speed.Y < 1) {
+			if (ip.isKeyDown(Input.KEY_DOWN) || ip.isKeyDown(Input.KEY_S) && speed.Y < 1)
+			{
 				speed.Y += dt * 2;
 
 				if (speed.Y > 1)
 					speed.Y = 1;
-			} else if (speed.Y > 0)
+			}
+			else if (speed.Y > 0)
 				speed.Y -= dt * 4;
 
-			if (ip.isKeyDown(Input.KEY_RIGHT) || ip.isKeyDown(Input.KEY_D) && speed.X < 1) {
+			if (ip.isKeyDown(Input.KEY_RIGHT) || ip.isKeyDown(Input.KEY_D) && speed.X < 1)
+			{
 				speed.X += dt * 2;
 
 				if (speed.X > 1)
 					speed.X = 1;
-			} else if (speed.X > 0)
+			}
+			else if (speed.X > 0)
 				speed.X -= dt * 4;
-			if (ip.isKeyDown(Input.KEY_LEFT) || ip.isKeyDown(Input.KEY_Q) && speed.X > -1) {
+			if (ip.isKeyDown(Input.KEY_LEFT) || ip.isKeyDown(Input.KEY_Q) && speed.X > -1)
+			{
 				speed.X -= dt * 2;
 
 				if (speed.X < -1)
 					speed.X = -1;
-			} else if (speed.X < 0)
+			}
+			else if (speed.X < 0)
 				speed.X += dt * 4;
 		}
 		// **/
 
 		// /** If not moving
-		else {
+		else
+		{
 			double a = dt * 3;
 			if (Math.abs(speed.X) < 0.1)
 				speed.X = 0;
@@ -154,7 +178,8 @@ public class Player {
 			else
 				speed.Y -= a;
 
-			if (Math.abs(speed.X) < 0.1 && Math.abs(speed.Y) < 0.1) {
+			if (Math.abs(speed.X) < 0.1 && Math.abs(speed.Y) < 0.1)
+			{
 				if (move == Move.Crouch)
 					move = Move.IdleCrouch;
 				else
@@ -164,9 +189,14 @@ public class Player {
 		// **/
 	}
 
-
 	public void Update(LinkedList<Rectangle> rects)
 	{
+		if (move != Move.IdleStand && move != Move.IdleCrouch)
+			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
+
+		r2.x = (int) (pos.X + signOf(speed.X) * size * 0.5f);
+		r2.y = (int) (pos.Y + signOf(speed.Y) * size * 0.5f);
+
 		boolean colliding = false;
 		for (int i = 0; i < rects.size(); i++)
 		{
@@ -201,21 +231,15 @@ public class Player {
 					if (intersect.getX() + w > r2.getCenterX())
 						pos.X -= w;
 					else
-						pos.X += w;						
-				}				
+						pos.X += w;
+				}
 				colliding = true;
 				break;
 			}
 		}
 
 		Vector2 newVel = speed.GetMul(moveSpeed * 0.5);
-
-		stand_walk.setSpeed((float)newVel.GetLength() * 0.55f);
-
-		if (move != Move.IdleStand && move != Move.IdleCrouch)
-		{
-			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
-		}
+		stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
 
 		// Movements
 		if (!colliding)
@@ -223,9 +247,6 @@ public class Player {
 			pos.X += (newVel.X);
 			pos.Y += (newVel.Y);
 		}
-
-		r2.x = (int)(pos.X + signOf(speed.X) * size * 0.5f);
-		r2.y = (int)(pos.Y + signOf(speed.Y) * size * 0.5f);
 	}
 
 	private int signOf(double x)
@@ -238,22 +259,35 @@ public class Player {
 			return 0;
 	}
 
-	public void Render(GameContainer gc, Graphics g, LinkedList<Light> lights) throws SlickException {
+	public void Render(GameContainer gc, Graphics g, LinkedList<Light> lights) throws SlickException
+	{
 		Color startCol = new Color(0, 0, 0, 0.25f);
 
-		g.drawRect((float)r2.getX(), (float)r2.getY(),(float)r2.getWidth(), (float)r2.getHeight());
+		// DEBUG
+		g.drawRect((float) r2.getX(), (float) r2.getY(), (float) r2.getWidth(), (float) r2.getHeight());
 
 		if (intersect != null)
-			g.drawRect((float)intersect.getX(), (float)intersect.getY(),(float)intersect.getWidth(), (float)intersect.getHeight());
+			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		// ---DEBUG
+
 		for (int i = 0; i < lights.size(); i++)
 		{
 			Light curr = lights.get(i);
-			Rect rect = new Rect((int)pos.X + 32, (int)pos.Y + 32, (int)pos.X + 96,
-					(int)pos.Y + 32, (int)pos.X + 32, (int)pos.Y + 96, (int)pos.X + 96, (int)pos.Y + 96);
+			Rect rect =
+					new Rect(
+							(int) pos.X + 32,
+							(int) pos.Y + 32,
+							(int) pos.X + 96,
+							(int) pos.Y + 32,
+							(int) pos.X + 32,
+							(int) pos.Y + 96,
+							(int) pos.X + 96,
+							(int) pos.Y + 96);
 			if (pos.getDistance(new Vector2(curr.GetX(), curr.GetY())) < 64)
 				startCol.a -= 0.2;
 
-			for (int j = 0; j < 4; j++) {
+			for (int j = 0; j < 4; j++)
+			{
 				Line l = rect.edges[j];
 				Polygon poly = new Polygon();
 				poly.addPoint(l.x0, l.y0);
@@ -261,10 +295,14 @@ public class Player {
 				poly.addPoint(l.x1 - curr.GetX() + l.x1, l.y1 - curr.GetY() + l.y1);
 				poly.addPoint(l.x0 - curr.GetX() + l.x0, l.y0 - curr.GetY() + l.y0);
 
-				ShapeFill fill = new GradientFill((l.x0 + l.x1) / 2,
-						(l.y1 + l.y0) / 2, startCol,
-						(l.x1 - curr.GetX() + l.x1 + l.x0 - curr.GetX() + l.x0) / 2, (l.y1 - curr.GetY() + l.y1 + l.y0 - curr.GetY() + l.y0) / 2,
-						new Color(0, 0, 0, 0f));
+				ShapeFill fill =
+						new GradientFill(
+								(l.x0 + l.x1) / 2,
+								(l.y1 + l.y0) / 2,
+								startCol,
+								(l.x1 - curr.GetX() + l.x1 + l.x0 - curr.GetX() + l.x0) / 2,
+								(l.y1 - curr.GetY() + l.y1 + l.y0 - curr.GetY() + l.y0) / 2,
+								new Color(0, 0, 0, 0f));
 
 				g.fill(poly, fill);
 			}
@@ -272,28 +310,34 @@ public class Player {
 
 		g.pushTransform();
 		g.rotate((float) GetPos().X + GetSize() / 2, (float) GetPos().Y + GetSize() / 2, angle);
-		switch (move) {
+		switch (move)
+		{
 		case IdleStand:
-			stand_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(),
-					GetSize());
+			stand_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
 			break;
 		case Walk:
-			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(),
-					GetSize());
+			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
 			break;
 		case IdleCrouch:
-			crouch_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(),
-					GetSize());
+			crouch_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
 			break;
 		case Crouch:
-			crouch_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(),
-					GetSize());
+			crouch_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
 			break;
 		default:
-			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(),
-					GetSize());
+			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
 			break;
 		}
 		g.popTransform();
+	}
+	
+	public Rectangle inRoom(LinkedList<Rectangle> rooms)
+	{
+		for (int i = 0; i < rooms.size(); i++)
+		{
+			if (rooms.get(i).contains(pos.X, pos.Y, 240, 240) || rooms.get(i).intersects(pos.X, pos.Y, 240, 240))
+				return rooms.get(i);
+		}
+		return null;
 	}
 }

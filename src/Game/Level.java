@@ -16,23 +16,35 @@ import org.newdawn.slick.SpriteSheet;
 
 import Game.Basics.Vector2;
 
-public class Level {
+public class Level
+{
 	private enum Mode
 	{
-		Floor(0),
-		Wall(1);
+		Floor(0), Wall(1);
 		private int id;
-		private Mode(int i){id = i;}
-		public int i(){return id;}
+
+		private Mode(int i)
+		{
+			id = i;
+		}
+
+		public int i()
+		{
+			return id;
+		}
 	}
+
 	private LinkedList<Obj> positions;
-	public LinkedList<Obj> getPositions() {
+	private LinkedList<Rectangle> rooms;
+
+	public LinkedList<Obj> getPositions()
+	{
 		return positions;
 	}
 
 	private SpriteSheet sprite;
 
-	LinkedList<Rectangle> rectangles;
+	LinkedList<Rectangle> walls;
 	private Rectangle rect;
 
 	private static final int[] gridW = new int[] { 268, 67 };
@@ -43,125 +55,47 @@ public class Level {
 
 	private Vector2 temp;
 
-	public boolean isInEditor() {
+
+	public boolean isInEditor()
+	{
 		return inEditor;
 	}
 
-	public void setInEditor(boolean inEditor) {
+	public void setInEditor(boolean inEditor)
+	{
 		this.inEditor = inEditor;
 	}
 
-	public Level(Image wall) {
+	public LinkedList<Rectangle> getRooms()
+	{
+		return rooms;
+	}
+	
+	public Level(Image wall)
+	{
 		positions = new LinkedList<Obj>();
-		rectangles = new LinkedList<Rectangle>();
+		walls = new LinkedList<Rectangle>();
+		rooms = new LinkedList<Rectangle>();
 
 		this.sprite = new SpriteSheet(wall, 1, 1);
 
-		rect = new Rectangle(0,0,1920,1080);
+		rect = new Rectangle(0, 0, 1920, 1080);
 		inEditor = false;
 
-		mode = Mode.Floor; 
+		mode = Mode.Floor;
 		temp = Vector2.Zero();
 	}
 
-	public LinkedList<Rectangle> Load(String file)
+	public void Update(Vector2 pos)
 	{
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				if (!line.equalsIgnoreCase(""))
-				{
-					if (line.equalsIgnoreCase("#"))
-						break;
-					String[] p = line.split(" ");
-					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]),Integer.valueOf(p[3]));
-					rectangles.add(r);
-				}
-			}
-			while ((line = reader.readLine()) != null) {
-				if (!line.equalsIgnoreCase(""))
-				{
-					String[] parts = line.split(" ");
-					Vector2 v = new Vector2(Double.valueOf(parts[1]), Double.valueOf(parts[2]));
-					positions.add(new Obj(v, Integer.valueOf(parts[0]), 0));
-				}
-			}
-			reader.close();
-		} catch (IOException ioe) {
-			System.out.print("Erreur : ");
-			ioe.printStackTrace();
-		}
-		return rectangles;
-	}
-
-	public void render(Graphics g)
-	{		
-		for (int i = 0; i < positions.size(); i++) {
-			Obj curr = positions.get(i);
-			Rectangle currRect = new Rectangle((int)curr.getPos().X, (int)curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
-			if (rect.contains(currRect) || rect.intersects(currRect))
-			{
-				int h = 0;
-				for (int j = 0; j < curr.getT(); j++) {
-					h += gridH[j];
-				}
-				Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
-				g.drawImage(tmp, (float)curr.getPos().X, (float)curr.getPos().Y);
-			}
-		}
-
-		if (inEditor)
-		{
-			g.setColor(Color.darkGray);
-
-			for (int i = (int)(rect.y / gridH[mode.i()]); i * gridH[mode.i()] <= 1080 + (int)(rect.y); i++)
-				g.drawLine(rect.x, i * gridH[mode.i()], rect.x + 1920, i * gridH[mode.i()]);
-
-			for (int i = (int)(rect.x / gridW[mode.i()]); i * gridW[mode.i()] <= 1920 + (int)(rect.x); i++)
-				g.drawLine(i * gridW[mode.i()], rect.y, i * gridW[mode.i()], rect.y + 1080);
-		}
-	}
-
-	public void renderWalls(Graphics g)
-	{		
-		int h = 0;
-		for (int j = 0; j < (Mode.Wall).i(); j++) {
-			h += gridH[j];
-		}
-		for (int i = 0; i < positions.size(); i++) {
-			Obj curr = positions.get(i);
-			if (curr.getT() == Mode.Wall.i())
-			{
-				Rectangle currRect = new Rectangle((int)curr.getPos().X, (int)curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
-				if (rect.contains(currRect) || rect.intersects(currRect))
-				{
-					Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
-					g.drawImage(tmp, (float)curr.getPos().X, (float)curr.getPos().Y);
-				}
-			}
-		}
-		if (inEditor)
-		{
-			g.setColor(Color.white);
-			for (int i = 0; i < rectangles.size(); i++) {
-				g.drawRect((float)rectangles.get(i).getX(), (float)rectangles.get(i).getY(),(float)rectangles.get(i).getWidth(), (float)rectangles.get(i).getHeight());
-			}
-
-			g.setColor(Color.red);
-			g.drawString("Mode : " + mode.toString(), rect.x + 10,  rect.y + 15);
-			g.drawString(String.format("Pos : %d , %d", (int)rect.getCenterX(), (int)rect.getCenterY()), rect.x + 10,  rect.y + 50);
-		}
-	}
-
-	public void Update(Vector2 pos) {
-		rect.x = ((int)pos.X);
-		rect.y = ((int)pos.Y);
+		rect.x = ((int) pos.X);
+		rect.y = ((int) pos.Y);
 	}
 
 	public void UpdateEditor(Vector2 mouse, Input ip)
 	{
-		if (ip.isMouseButtonDown(0) || ip.isMouseButtonDown(1)) {
+		if (ip.isMouseButtonDown(0) || ip.isMouseButtonDown(1))
+		{
 			mouse = SnapToGrid(mouse);
 			if (ip.isMouseButtonDown(0))
 				positions.add(new Obj(new Vector2(mouse.X, mouse.Y), mode.i(), 0));
@@ -189,8 +123,8 @@ public class Level {
 			else
 				mode = Mode.Floor;
 		}
-		else if (mode == Mode.Wall && ip.isKeyPressed(Input.KEY_ENTER) && !ip.isKeyDown(Input.KEY_X)) // To correct odd bug...
-		{	
+		else if (ip.isKeyPressed(Input.KEY_ENTER) && !ip.isKeyDown(Input.KEY_X)) // To correct odd bug...
+		{
 			mouse = SnapToGrid(mouse);
 			if (temp.isZero())
 				temp = mouse;
@@ -202,22 +136,109 @@ public class Level {
 					temp = mouse;
 					mouse = v;
 				}
-				mouse.Add(new Vector2(gridW[mode.i()],gridH[mode.i()]));
+				mouse.Add(new Vector2(gridW[mode.i()], gridH[mode.i()]));
 				if (temp.X != mouse.X && temp.Y != mouse.Y)
-					rectangles.add(new Rectangle((int)temp.X, (int)temp.Y, (int)Math.abs(mouse.X - temp.X), (int)Math.abs(mouse.Y - temp.Y)));
+				{
+					if (mode == Mode.Wall)
+						walls.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
+					else if (mode == Mode.Floor)
+						rooms.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
 				temp = Vector2.Zero();
+				}
 			}
 		}
 	}
 
+
+	public void render(Graphics g)
+	{
+		for (int i = 0; i < positions.size(); i++)
+		{
+			Obj curr = positions.get(i);
+			Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
+			if (rect.contains(currRect) || rect.intersects(currRect))
+			{
+				int h = 0;
+				for (int j = 0; j < curr.getT(); j++)
+				{
+					h += gridH[j];
+				}
+				Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
+				g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
+			}
+		}
+
+		if (inEditor)
+		{
+			g.setColor(Color.darkGray);
+
+			for (int i = (int) (rect.y / gridH[mode.i()]); i * gridH[mode.i()] <= 1080 + (int) (rect.y); i++)
+				g.drawLine(rect.x, i * gridH[mode.i()], rect.x + 1920, i * gridH[mode.i()]);
+
+			for (int i = (int) (rect.x / gridW[mode.i()]); i * gridW[mode.i()] <= 1920 + (int) (rect.x); i++)
+				g.drawLine(i * gridW[mode.i()], rect.y, i * gridW[mode.i()], rect.y + 1080);
+		}
+	}
+
+	public void renderWalls(Graphics g)
+	{
+		int h = 0;
+		for (int j = 0; j < (Mode.Wall).i(); j++)
+		{
+			h += gridH[j];
+		}
+		for (int i = 0; i < positions.size(); i++)
+		{
+			Obj curr = positions.get(i);
+			if (curr.getT() == Mode.Wall.i())
+			{
+				Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
+				if (rect.contains(currRect) || rect.intersects(currRect))
+				{
+					Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
+					g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
+				}
+			}
+		}
+		if (inEditor)
+		{
+			g.setColor(Color.white);
+			for (int i = 0; i < walls.size(); i++)
+			{
+				g.drawRect(
+						(float) walls.get(i).getX(),
+						(float) walls.get(i).getY(),
+						(float) walls.get(i).getWidth(),
+						(float) walls.get(i).getHeight());
+			}
+
+			for (int i = 0; i < rooms.size(); i++)
+			{
+				g.setColor(new Color(i,i,i, 0.25f));
+				g.fillRect(
+						(float) rooms.get(i).getX(),
+						(float) rooms.get(i).getY(),
+						(float) rooms.get(i).getWidth(),
+						(float) rooms.get(i).getHeight());
+			}
+
+			g.setColor(Color.red);
+			g.drawString("Mode : " + mode.toString(), rect.x + 10, rect.y + 15);
+			g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 50);
+		}
+	}
+	
+	
 	private Vector2 SnapToGrid(Vector2 mouse)
 	{
-		if (mouse.X % gridW[mode.i()] != 0) {
+		if (mouse.X % gridW[mode.i()] != 0)
+		{
 			if (mouse.X < 0)
 				mouse.X -= gridW[mode.i()];
 			mouse.X = ((int) (mouse.X / gridW[mode.i()])) * gridW[mode.i()];
 		}
-		if (mouse.Y % gridH[mode.i()] != 0) {
+		if (mouse.Y % gridH[mode.i()] != 0)
+		{
 			if (mouse.Y < 0)
 				mouse.Y -= gridH[mode.i()];
 			mouse.Y = ((int) (mouse.Y / gridH[mode.i()])) * gridH[mode.i()];
@@ -225,41 +246,117 @@ public class Level {
 		return mouse;
 	}
 
-	// /** Editor
-	private void Clean_List() {
-		for (int i = 0; i < positions.size(); i++) {
-			for (int j = 1; j < positions.size(); j++) {
+	public LinkedList<Rectangle> Load(String file)
+	{
+		try
+		{
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line = null;
+			// Reading rectangles for rooms
+			while ((line = reader.readLine()) != null)
+			{
+				if (!line.equalsIgnoreCase(""))
+				{
+					if (line.equalsIgnoreCase("#"))
+						break;
+					String[] p = line.split(" ");
+					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+					rooms.add(r);
+				}
+			}
+			// Reading rectangles for wall collisions
+			while ((line = reader.readLine()) != null)
+			{
+				if (!line.equalsIgnoreCase(""))
+				{
+					if (line.equalsIgnoreCase("#"))
+						break;
+					String[] p = line.split(" ");
+					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+					walls.add(r);
+				}
+			}
+			// Reading texture positions
+			while ((line = reader.readLine()) != null)
+			{
+				if (!line.equalsIgnoreCase(""))
+				{
+					String[] parts = line.split(" ");
+					Vector2 v = new Vector2(Double.valueOf(parts[1]), Double.valueOf(parts[2]));
+					positions.add(new Obj(v, Integer.valueOf(parts[0]), 0));
+				}
+			}
+			reader.close();
+		}
+		catch (IOException ioe)
+		{
+			System.out.print("Erreur : ");
+			ioe.printStackTrace();
+		}
+		return walls;
+	}
+
+
+	private void Save_Level()
+	{
+		Clean_List();
+		try
+		{
+			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/" + "level.cfg", false);
+			BufferedWriter output = new BufferedWriter(fw);
+			for (int i = 0; i < rooms.size(); i++)
+			{
+				Rectangle curr = rooms.get(i);
+				output.write(String.format(
+						"%d %d %d %d\n",
+						(int) curr.getX(),
+						(int) curr.getY(),
+						(int) curr.getWidth(),
+						(int) curr.getHeight()));
+			}
+
+			output.write("#\n");
+			
+			for (int i = 0; i < walls.size(); i++)
+			{
+				Rectangle curr = walls.get(i);
+				output.write(String.format(
+						"%d %d %d %d\n",
+						(int) curr.getX(),
+						(int) curr.getY(),
+						(int) curr.getWidth(),
+						(int) curr.getHeight()));
+			}
+
+			output.write("#\n");
+
+			for (int i = 0; i < positions.size(); i++)
+			{
+				Obj curr = positions.get(i);
+				output.write(String.format("%d %d %d\n", curr.getT(), (int) curr.getPos().X, (int) curr.getPos().Y));
+			}
+
+			output.flush();
+			output.close();
+		}
+		catch (IOException ioe)
+		{
+			System.out.print("Erreur : ");
+			ioe.printStackTrace();
+		}
+	}
+	
+	private void Clean_List()
+	{
+		for (int i = 0; i < positions.size(); i++)
+		{
+			for (int j = 1; j < positions.size(); j++)
+			{
 				if (i != j && positions.get(i).getPos().Equals(positions.get(j).getPos()))
 					positions.remove(j--);
 			}
 		}
 
-	}
-
-	private void Save_Level() {
-		Clean_List();
-		try {
-			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/"
-					+ "level.cfg", false);
-			BufferedWriter output = new BufferedWriter(fw);
-			for (int i = 0; i < rectangles.size(); i++) {
-				Rectangle curr = rectangles.get(i);
-				output.write(String.format("%d %d %d %d\n", (int)curr.getX(), (int)curr.getY(), (int)curr.getWidth(), (int)curr.getHeight()));
-			}
-
-			output.write("#\n");
-
-			for (int i = 0; i < positions.size(); i++) {
-				Obj curr = positions.get(i);
-				output.write(String.format("%d %d %d\n", curr.getT(),(int) curr.getPos().X,(int)curr.getPos().Y));
-			}
-
-			output.flush();
-			output.close();
-		} catch (IOException ioe) {
-			System.out.print("Erreur : ");
-			ioe.printStackTrace();
-		}
 	}
 	// **/
 }

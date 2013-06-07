@@ -2,27 +2,29 @@ package Game.Basics;
 
 import org.newdawn.slick.Graphics;
 
-public class Rect {
+public class Rect
+{
 
 	public Line[] edges;
 
 	public int getY()
 	{
-		return (int)edges[0].y0;
+		return (int) edges[0].y0;
 	}
+
 	public int getX()
 	{
-		return (int)edges[0].x0;
+		return (int) edges[0].x0;
 	}
 
 	public int getW()
 	{
-		return (int)(edges[0].x1 - edges[0].x0);
+		return (int) (edges[0].x1 - edges[0].x0);
 	}
 
 	public int getH()
 	{
-		return (int)(edges[2].y1 - edges[0].y0);
+		return (int) (edges[2].y1 - edges[0].y0);
 	}
 
 	public Rect(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)

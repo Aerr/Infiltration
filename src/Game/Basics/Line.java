@@ -2,7 +2,8 @@ package Game.Basics;
 
 import org.newdawn.slick.Graphics;
 
-public class Line {
+public class Line
+{
 
 	public float x0;
 	public float y0;
@@ -24,7 +25,7 @@ public class Line {
 	{
 		g.drawLine(x0, y0, x1, y1);
 	}
-	
+
 	private void swap()
 	{
 		if (this.x0 > this.x1)
@@ -38,19 +39,22 @@ public class Line {
 			y1 = temp;
 		}
 	}
+
 	public Vector2 getCenter()
 	{
 		return (new Vector2((x1 + x0) / 2, (y1 - y0) / 2));
 	}
+
 	public double slope()
 	{
-		return (y1 - y0)/(x1 - x0);
+		return (y1 - y0) / (x1 - x0);
 	}
 
 	public boolean isVertical()
 	{
 		return (x0 - x1 == 0);
 	}
+
 	public boolean isHorizontal()
 	{
 		return (y0 - y1 == 0);
