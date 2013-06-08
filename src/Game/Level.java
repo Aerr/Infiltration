@@ -70,7 +70,7 @@ public class Level
 	{
 		return rooms;
 	}
-	
+
 	public Level(Image wall)
 	{
 		positions = new LinkedList<Obj>();
@@ -125,7 +125,8 @@ public class Level
 		}
 		else if (ip.isKeyPressed(Input.KEY_ENTER) && !ip.isKeyDown(Input.KEY_X)) // To correct odd bug...
 		{
-			mouse = SnapToGrid(mouse);
+			if (mode == Mode.Wall)
+				mouse = SnapToGrid(mouse);
 			if (temp.isZero())
 				temp = mouse;
 			else
@@ -136,14 +137,15 @@ public class Level
 					temp = mouse;
 					mouse = v;
 				}
-				mouse.Add(new Vector2(gridW[mode.i()], gridH[mode.i()]));
+				if (mode == Mode.Wall)
+					mouse.Add(new Vector2(gridW[mode.i()], gridH[mode.i()]));
 				if (temp.X != mouse.X && temp.Y != mouse.Y)
 				{
 					if (mode == Mode.Wall)
 						walls.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
 					else if (mode == Mode.Floor)
 						rooms.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
-				temp = Vector2.Zero();
+					temp = Vector2.Zero();
 				}
 			}
 		}
@@ -227,8 +229,8 @@ public class Level
 			g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 50);
 		}
 	}
-	
-	
+
+
 	private Vector2 SnapToGrid(Vector2 mouse)
 	{
 		if (mouse.X % gridW[mode.i()] != 0)
@@ -316,7 +318,7 @@ public class Level
 			}
 
 			output.write("#\n");
-			
+
 			for (int i = 0; i < walls.size(); i++)
 			{
 				Rectangle curr = walls.get(i);
@@ -345,7 +347,7 @@ public class Level
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	private void Clean_List()
 	{
 		for (int i = 0; i < positions.size(); i++)

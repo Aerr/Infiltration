@@ -58,7 +58,7 @@ public class Player
 
 	public Player(int w, int h, Image sprite)
 	{
-		this.pos = new Vector2(600, 200);
+		this.pos = new Vector2(900, 600);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
 		moveSpeed = normalSpeed;

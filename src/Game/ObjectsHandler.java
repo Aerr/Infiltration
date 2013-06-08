@@ -35,7 +35,7 @@ public class ObjectsHandler
 
 		lightEnabled = true;
 		lightManager = new LightManager(w, h, img_light);
-		lightManager.AddLight(800, 0, 2, 0);
+		lightManager.AddLight(1000, 300, 2, 0);
 	}
 
 	public double random(double x, double y)

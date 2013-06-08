@@ -22,6 +22,7 @@ public class Main extends BasicGame
 	private Camera cam;
 	private Image img_light;
 	private Image img_wall;
+	private Image img_floor;
 
 	public Main()
 	{
@@ -39,9 +40,9 @@ public class Main extends BasicGame
 	{
 		app.setMouseGrabbed(false);
 		state = GameState.inGame;
-
+		
 		Image img_perso = null;
-		Image img_floor = null;
+		img_floor = null;
 		try
 		{
 			img_perso = new Image("images/animations.png");
@@ -116,7 +117,7 @@ public class Main extends BasicGame
 	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException
-	{
+	{		
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
 		g.drawString(String.format("FPS : %d", gc.getFPS()), 0, 0);
@@ -130,7 +131,7 @@ public class Main extends BasicGame
 
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
-//		g.drawString(String.format("FPS : %d", gc.getFPS()), 0, 0);
+
 		g.flush();
 	}
 
