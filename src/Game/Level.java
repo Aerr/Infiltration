@@ -223,10 +223,6 @@ public class Level
 						(float) rooms.get(i).getWidth(),
 						(float) rooms.get(i).getHeight());
 			}
-
-			g.setColor(Color.red);
-			g.drawString("Mode : " + mode.toString(), rect.x + 10, rect.y + 15);
-			g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 50);
 		}
 	}
 
@@ -359,6 +355,14 @@ public class Level
 			}
 		}
 
+	}
+	
+	public void printInfo(Graphics g)
+	{
+		g.setColor(Color.red);
+		g.drawString("Mode : " + mode.toString(), rect.x + 10, rect.y + 45);
+		g.fillOval((int) rect.getCenterX() - 15, (int) rect.getCenterY() - 15, 30, 30);
+		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 	}
 	// **/
 }

@@ -33,26 +33,48 @@ public class LightManager
 
 	public void render(Graphics g, Rectangle current_room)
 	{
+		g.setColor(Color.pink);
+		for (int i = 0; i < lights.size(); i++)
+		{
+			Light curr = lights.get(i);
+			//			if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
+			g.fillOval(curr.GetX() - 15, curr.GetY() - 15, 30, 30);
+		}
+
 		if (current_room != null && room != null && !room.equals(current_room))
 		{
 			color = new Color(0, 0, 0, 0.00f);
 			old_color = new Color(0, 0, 0, 0.05f);
 			old_room = room;
 		}
-		
+
 		room = current_room;
-		
+
 		g.clearAlphaMap();
 		g.setDrawMode(Graphics.MODE_ALPHA_MAP);
 		GL11.glEnable(SGL.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-		for (int i = 0; i < lights.size(); i++)
+
+		for (int i = 0; i < lights.size(); i++) 
 		{
 			Light curr = lights.get(i);
 			if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
 			{
-				Image tmp = texture.getSubImage((int)(room.width - curr.GetX()), (int)(room.height - curr.GetY()), texture.getWidth(), texture.getHeight());
-				tmp.drawCentered(curr.GetX() + (int)(room.width - curr.GetX()),  curr.GetY() + (int)(room.height - curr.GetY()));
+				Image tmp = texture.getScaledCopy(curr.GetIntensity());
+				int w,h;
+				int x = (int)(curr.GetX() - tmp.getWidth() / 2);
+				int y = (int)(curr.GetY() - tmp.getHeight() / 2);
+
+				x = Math.max(0, room.x - x);
+				y = Math.max(0, room.y - y);
+				w = Math.min(tmp.getWidth() - x, room.width);
+				h = Math.min(tmp.getHeight() - y, room.height);
+				
+				tmp = tmp.getSubImage(x, y, w, h);
+						
+				tmp.draw(room.x, room.y);
+				
+//				texture.drawCentered(curr.GetX(), curr.GetY());
 			}
 		}
 
@@ -72,7 +94,7 @@ public class LightManager
 			if (old_color.a > 0)
 				old_color.a -= 0.0002;
 		}
-		
+
 		g.resetTransform();
 		g.setColor(new Color(0, 0, 0, .001f));
 		g.fillRect(0, 0, w, h);

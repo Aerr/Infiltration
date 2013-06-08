@@ -35,7 +35,7 @@ public class ObjectsHandler
 
 		lightEnabled = true;
 		lightManager = new LightManager(w, h, img_light);
-		lightManager.AddLight(1000, 300, 2, 0);
+		lightManager.AddLight(1200, -600, 2, 0);
 	}
 
 	public double random(double x, double y)
@@ -54,6 +54,7 @@ public class ObjectsHandler
 
 		if (tempX0 != -1)
 			g.drawLine(tempX0, tempY0, x, y);
+		
 
 		if (lightEnabled)
 			lightManager.render(g, player.inRoom(level.getRooms()));
@@ -82,5 +83,11 @@ public class ObjectsHandler
 	{
 		inEditor = b;
 		level.setInEditor(b);
+	}
+	
+	public void printInfos(Graphics g)
+	{
+		if (inEditor)
+			level.printInfo(g);
 	}
 }

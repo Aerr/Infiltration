@@ -120,7 +120,6 @@ public class Main extends BasicGame
 	{		
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
-		g.drawString(String.format("FPS : %d", gc.getFPS()), 0, 0);
 
 		g.setLineWidth(2);
 		g.setBackground(Color.gray);
@@ -129,9 +128,12 @@ public class Main extends BasicGame
 
 		objects.render(gc, g, state, mouseX + (float) cam.getPos().X, mouseY + (float) cam.getPos().Y);
 
+		g.pushTransform();
+		g.translate(-(float) cam.getPos().X, -(float) cam.getPos().Y);
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
-
+		objects.printInfos(g);
+		
 		g.flush();
 	}
 
@@ -139,7 +141,7 @@ public class Main extends BasicGame
 	{
 		app = new AppGameContainer(new Main());
 		app.setDisplayMode(1920, 1080, false);
-		app.setShowFPS(false);
+		app.setShowFPS(true);
 		app.start();
 	}
 }
