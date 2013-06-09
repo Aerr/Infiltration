@@ -20,7 +20,7 @@ public class Level
 {
 	private enum Mode
 	{
-		Floor(0), Wall(1);
+		Floor(0), Wall(1), Light(2), End(3);
 		private int id;
 
 		private Mode(int i)
@@ -36,10 +36,16 @@ public class Level
 
 	private LinkedList<Obj> positions;
 	private LinkedList<Rectangle> rooms;
+	private LinkedList<Light> lights;
 
 	public LinkedList<Obj> getPositions()
 	{
 		return positions;
+	}
+
+	public LinkedList<Light> getLights()
+	{
+		return lights;
 	}
 
 	private SpriteSheet sprite;
@@ -47,14 +53,14 @@ public class Level
 	LinkedList<Rectangle> walls;
 	private Rectangle rect;
 
-	private static final int[] gridW = new int[] { 268, 67 };
-	private static final int[] gridH = new int[] { 178, 67 };
+	private static final int[] gridW = new int[] { 268, 67, 268, };
+	private static final int[] gridH = new int[] { 178, 67, 178, };
 
 	private boolean inEditor;
-	private Mode mode;
+	private int mode;
 
 	private Vector2 temp;
-
+	private Vector2 mouse;
 
 	public boolean isInEditor()
 	{
@@ -76,13 +82,14 @@ public class Level
 		positions = new LinkedList<Obj>();
 		walls = new LinkedList<Rectangle>();
 		rooms = new LinkedList<Rectangle>();
+		lights = new LinkedList<Light>();
 
 		this.sprite = new SpriteSheet(wall, 1, 1);
 
 		rect = new Rectangle(0, 0, 1920, 1080);
 		inEditor = false;
 
-		mode = Mode.Floor;
+		mode = Mode.Floor.i();
 		temp = Vector2.Zero();
 	}
 
@@ -92,40 +99,64 @@ public class Level
 		rect.y = ((int) pos.Y);
 	}
 
-	public void UpdateEditor(Vector2 mouse, Input ip)
+	public void UpdateEditor(Vector2 pos, Input ip)
 	{
+		mouse = pos;
+		// Clicking : Placing Elements
 		if (ip.isMouseButtonDown(0) || ip.isMouseButtonDown(1))
 		{
-			mouse = SnapToGrid(mouse);
-			if (ip.isMouseButtonDown(0))
-				positions.add(new Obj(new Vector2(mouse.X, mouse.Y), mode.i(), 0));
+			if (mode == Mode.Light.i())
+			{
+				if (ip.isMousePressed(0))
+					lights.add(new Light(mouse.X, mouse.Y, 1, 0));
+				else if (ip.isMouseButtonDown(1))
+				{
+					for (int i = 0; i < lights.size(); i++)
+					{
+						if (mouse.getDistance(new Vector2(lights.get(i).getX(), lights.get(i).getY())) < 100)
+						{
+							lights.remove(i);
+							break;
+						}
+					}
+				}
+			}
 			else
 			{
-				Clean_List();
-				for (int i = 0; i < positions.size(); i++)
+				mouse = SnapToGrid(mouse);
+				if (ip.isMouseButtonDown(0))
+					positions.add(new Obj(new Vector2(mouse.X, mouse.Y), mode, 0));
+				else
 				{
-					if (positions.get(i).getPos().Equals(new Vector2(mouse.X, mouse.Y)))
+					Clean_List();
+					for (int i = 0; i < positions.size(); i++)
 					{
-						positions.remove(i);
-						break;
+						if (positions.get(i).getPos().Equals(new Vector2(mouse.X, mouse.Y)))
+						{
+							positions.remove(i);
+							break;
+						}
 					}
 				}
 			}
 		}
+		// Saving
 		else if (ip.isKeyPressed(Input.KEY_F5))
 			Save_Level();
+		// Pressing X : Changing mode (Floor, Wall, Props)
 		else if (ip.isKeyPressed(Input.KEY_X))
 		{
 			temp = Vector2.Zero();
-
-			if (mode == Mode.Floor)
-				mode = Mode.Wall;
-			else
-				mode = Mode.Floor;
+			mode = ++mode % Mode.End.i();
+			// if (mode == Mode.Floor)
+			// mode = Mode.Wall;
+			// else
+			// mode = Mode.Floor;
 		}
+		// Pressing Enter : creating rectangle (walls' collision ; defining rooms)
 		else if (ip.isKeyPressed(Input.KEY_ENTER) && !ip.isKeyDown(Input.KEY_X)) // To correct odd bug...
 		{
-			if (mode == Mode.Wall)
+			if (mode == Mode.Wall.i())
 				mouse = SnapToGrid(mouse);
 			if (temp.isZero())
 				temp = mouse;
@@ -137,20 +168,40 @@ public class Level
 					temp = mouse;
 					mouse = v;
 				}
-				if (mode == Mode.Wall)
-					mouse.Add(new Vector2(gridW[mode.i()], gridH[mode.i()]));
+				if (mode == Mode.Wall.i())
+					mouse.Add(new Vector2(gridW[mode], gridH[mode]));
 				if (temp.X != mouse.X && temp.Y != mouse.Y)
 				{
-					if (mode == Mode.Wall)
-						walls.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
-					else if (mode == Mode.Floor)
-						rooms.add(new Rectangle((int)temp.X, (int)temp.Y,(int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y-temp.Y)));
+					if (mode == Mode.Wall.i())
+						walls.add(new Rectangle((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
+								- temp.Y)));
+					else if (mode == Mode.Floor.i())
+						rooms.add(new Rectangle((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
+								- temp.Y)));
 					temp = Vector2.Zero();
 				}
 			}
 		}
+		else if (ip.isKeyPressed(Input.KEY_DELETE))
+		{
+			if (mode == Mode.Wall.i())
+			{
+				for (int i = 0; i < walls.size(); i++)
+				{
+					if (walls.get(i).contains(mouse.X, mouse.Y, 30, 30) || walls.get(i).intersects(mouse.X, mouse.Y, 30, 30))
+						walls.remove(i);
+				}
+			}
+			else if (mode == Mode.Floor.i())
+			{
+				for (int i = 0; i < rooms.size(); i++)
+				{
+					if (rooms.get(i).contains(mouse.X, mouse.Y, 30, 30) || rooms.get(i).intersects(mouse.X, mouse.Y, 30, 30))
+						rooms.remove(i);
+				}
+			}
+		}
 	}
-
 
 	public void render(Graphics g)
 	{
@@ -174,11 +225,21 @@ public class Level
 		{
 			g.setColor(Color.darkGray);
 
-			for (int i = (int) (rect.y / gridH[mode.i()]); i * gridH[mode.i()] <= 1080 + (int) (rect.y); i++)
-				g.drawLine(rect.x, i * gridH[mode.i()], rect.x + 1920, i * gridH[mode.i()]);
+			for (int i = (int) (rect.y / gridH[mode]); i * gridH[mode] <= 1080 + (int) (rect.y); i++)
+				g.drawLine(rect.x, i * gridH[mode], rect.x + 1920, i * gridH[mode]);
 
-			for (int i = (int) (rect.x / gridW[mode.i()]); i * gridW[mode.i()] <= 1920 + (int) (rect.x); i++)
-				g.drawLine(i * gridW[mode.i()], rect.y, i * gridW[mode.i()], rect.y + 1080);
+			for (int i = (int) (rect.x / gridW[mode]); i * gridW[mode] <= 1920 + (int) (rect.x); i++)
+				g.drawLine(i * gridW[mode], rect.y, i * gridW[mode], rect.y + 1080);
+
+			if (!temp.isZero())
+			{
+				g.setColor(new Color(255, 43, 43, 128));
+				g.fillRect(
+						(float) Math.min(temp.X, mouse.X),
+						(float) Math.min(temp.Y, mouse.Y),
+						(float) Math.abs(temp.X - mouse.X),
+						(float) Math.abs(temp.Y - mouse.Y));
+			}
 		}
 	}
 
@@ -204,42 +265,60 @@ public class Level
 		}
 		if (inEditor)
 		{
-			g.setColor(Color.white);
-			for (int i = 0; i < walls.size(); i++)
+			if (mode == Mode.Wall.i())
 			{
-				g.drawRect(
-						(float) walls.get(i).getX(),
-						(float) walls.get(i).getY(),
-						(float) walls.get(i).getWidth(),
-						(float) walls.get(i).getHeight());
+				g.setColor(Color.white);
+				for (int i = 0; i < walls.size(); i++)
+				{
+					g.drawRect((float) walls.get(i).getX(), (float) walls.get(i).getY(), (float) walls.get(i).getWidth(), (float) walls
+							.get(i)
+							.getHeight());
+				}
 			}
-
-			for (int i = 0; i < rooms.size(); i++)
+			else if (mode == Mode.Floor.i())
 			{
-				g.setColor(new Color(i,i,i, 0.25f));
-				g.fillRect(
-						(float) rooms.get(i).getX(),
-						(float) rooms.get(i).getY(),
-						(float) rooms.get(i).getWidth(),
-						(float) rooms.get(i).getHeight());
+				for (int i = 0; i < rooms.size(); i++)
+				{
+					g.setColor(new Color(
+							(int) (rooms.get(i).getWidth()) / (i + 1),
+							(int) rooms.get(i).getY(),
+							(int) rooms.get(i).getX(),
+							128));
+					g.fillRect((float) rooms.get(i).getX(), (float) rooms.get(i).getY(), (float) rooms.get(i).getWidth(), (float) rooms
+							.get(i)
+							.getHeight());
+					g.setColor(Color.black);
+					g.drawRect((float) rooms.get(i).getX(), (float) rooms.get(i).getY(), (float) rooms.get(i).getWidth(), (float) rooms
+							.get(i)
+							.getHeight());
+				}
+			}
+			else if (mode == Mode.Light.i())
+			{
+				g.setColor(Color.pink);
+				for (int i = 0; i < lights.size(); i++)
+				{
+					Light curr = lights.get(i);
+					// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
+					g.fillOval(curr.getX() - 15, curr.getY() - 15, 30, 30);
+				}
 			}
 		}
 	}
 
-
 	private Vector2 SnapToGrid(Vector2 mouse)
 	{
-		if (mouse.X % gridW[mode.i()] != 0)
+		if (mouse.X % gridW[mode] != 0)
 		{
 			if (mouse.X < 0)
-				mouse.X -= gridW[mode.i()];
-			mouse.X = ((int) (mouse.X / gridW[mode.i()])) * gridW[mode.i()];
+				mouse.X -= gridW[mode];
+			mouse.X = ((int) (mouse.X / gridW[mode])) * gridW[mode];
 		}
-		if (mouse.Y % gridH[mode.i()] != 0)
+		if (mouse.Y % gridH[mode] != 0)
 		{
 			if (mouse.Y < 0)
-				mouse.Y -= gridH[mode.i()];
-			mouse.Y = ((int) (mouse.Y / gridH[mode.i()])) * gridH[mode.i()];
+				mouse.Y -= gridH[mode];
+			mouse.Y = ((int) (mouse.Y / gridH[mode])) * gridH[mode];
 		}
 		return mouse;
 	}
@@ -250,6 +329,18 @@ public class Level
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line = null;
+			// Reading positions and intensity and id for lights
+			while ((line = reader.readLine()) != null)
+			{
+				if (!line.equalsIgnoreCase(""))
+				{
+					if (line.equalsIgnoreCase("#"))
+						break;
+					String[] p = line.split(" ");
+					Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+					lights.add(l);
+				}
+			}
 			// Reading rectangles for rooms
 			while ((line = reader.readLine()) != null)
 			{
@@ -294,14 +385,25 @@ public class Level
 		return walls;
 	}
 
-
-	private void Save_Level()
+	public void Save_Level()
 	{
 		Clean_List();
 		try
 		{
 			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/" + "level.cfg", false);
 			BufferedWriter output = new BufferedWriter(fw);
+			for (int i = 0; i < lights.size(); i++)
+			{
+				Light curr = lights.get(i);
+				output.write(String.format(
+						"%d %d %d %d\n",
+						(int) curr.getX(),
+						(int) curr.getY(),
+						(int) curr.getIntensity(),
+						(int) curr.getType()));
+			}
+
+			output.write("#\n");
 			for (int i = 0; i < rooms.size(); i++)
 			{
 				Rectangle curr = rooms.get(i);
@@ -356,11 +458,12 @@ public class Level
 		}
 
 	}
-	
+
 	public void printInfo(Graphics g)
 	{
 		g.setColor(Color.red);
-		g.drawString("Mode : " + mode.toString(), rect.x + 10, rect.y + 45);
+		String[] m = new String[] { "Floor", "Wall", "Light", };
+		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
 		g.fillOval((int) rect.getCenterX() - 15, (int) rect.getCenterY() - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 	}

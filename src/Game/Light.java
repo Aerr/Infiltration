@@ -9,22 +9,22 @@ public class Light
 	private Vector2 pos;
 	private int type;
 
-	public int GetIntensity()
+	public int getIntensity()
 	{
 		return this.intensity;
 	}
 
-	public int GetType()
+	public int getType()
 	{
 		return this.type;
 	}
 
-	public float GetX()
+	public float getX()
 	{
 		return (float) pos.X;
 	}
 
-	public float GetY()
+	public float getY()
 	{
 		return (float) pos.Y;
 	}

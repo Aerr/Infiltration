@@ -12,8 +12,6 @@ public class ObjectsHandler
 {
 	private LinkedList<Rectangle> rects;
 	private Player player;
-	private float tempX0;
-	private float tempY0;
 	public int scale;
 	private Level level;
 	private LightManager lightManager;
@@ -25,9 +23,6 @@ public class ObjectsHandler
 	{
 		this.rects = new LinkedList<Rectangle>();
 
-		this.tempX0 = -1;
-		this.tempY0 = -1;
-
 		player = new Player(w, h, img_perso);
 
 		level = new Level(img_wall);
@@ -35,7 +30,7 @@ public class ObjectsHandler
 
 		lightEnabled = true;
 		lightManager = new LightManager(w, h, img_light);
-		lightManager.AddLight(1200, -600, 2, 0);
+		lightManager.setLights(level.getLights());
 	}
 
 	public double random(double x, double y)
@@ -48,13 +43,9 @@ public class ObjectsHandler
 
 		level.render(g);
 
-		player.Render(gc, g, lightManager.lights);
+		player.Render(gc, g, lightManager.getLights());
 
 		level.renderWalls(g);
-
-		if (tempX0 != -1)
-			g.drawLine(tempX0, tempY0, x, y);
-		
 
 		if (lightEnabled)
 			lightManager.render(g, player.inRoom(level.getRooms()));
@@ -65,11 +56,15 @@ public class ObjectsHandler
 
 		level.Update(camPos);
 		if (inEditor)
+		{
 			level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip);
+			if (lightEnabled)
+				lightManager.setLights(level.getLights());
+		}
 
 		player.HandleInput(ip, dt);
 		player.Update(rects);
-		
+
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;
 	}
@@ -81,10 +76,12 @@ public class ObjectsHandler
 
 	public void setInEditor(boolean b)
 	{
+		if (inEditor)
+			level.Save_Level();
 		inEditor = b;
 		level.setInEditor(b);
 	}
-	
+
 	public void printInfos(Graphics g)
 	{
 		if (inEditor)

@@ -283,7 +283,7 @@ public class Player
 							(int) pos.Y + 96,
 							(int) pos.X + 96,
 							(int) pos.Y + 96);
-			if (pos.getDistance(new Vector2(curr.GetX(), curr.GetY())) < 64)
+			if (pos.getDistance(new Vector2(curr.getX(), curr.getY())) < 64)
 				startCol.a -= 0.2;
 
 			for (int j = 0; j < 4; j++)
@@ -292,16 +292,16 @@ public class Player
 				Polygon poly = new Polygon();
 				poly.addPoint(l.x0, l.y0);
 				poly.addPoint(l.x1, l.y1);
-				poly.addPoint(l.x1 - curr.GetX() + l.x1, l.y1 - curr.GetY() + l.y1);
-				poly.addPoint(l.x0 - curr.GetX() + l.x0, l.y0 - curr.GetY() + l.y0);
+				poly.addPoint(l.x1 - curr.getX() + l.x1, l.y1 - curr.getY() + l.y1);
+				poly.addPoint(l.x0 - curr.getX() + l.x0, l.y0 - curr.getY() + l.y0);
 
 				ShapeFill fill =
 						new GradientFill(
 								(l.x0 + l.x1) / 2,
 								(l.y1 + l.y0) / 2,
 								startCol,
-								(l.x1 - curr.GetX() + l.x1 + l.x0 - curr.GetX() + l.x0) / 2,
-								(l.y1 - curr.GetY() + l.y1 + l.y0 - curr.GetY() + l.y0) / 2,
+								(l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
+								(l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
 								new Color(0, 0, 0, 0f));
 
 				g.fill(poly, fill);
@@ -330,7 +330,7 @@ public class Player
 		}
 		g.popTransform();
 	}
-	
+
 	public Rectangle inRoom(LinkedList<Rectangle> rooms)
 	{
 		for (int i = 0; i < rooms.size(); i++)

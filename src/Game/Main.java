@@ -29,18 +29,11 @@ public class Main extends BasicGame
 		super("Infiltration");
 	}
 
-	private void initEditor(GameContainer gc) throws SlickException
-	{
-		init(gc);
-		app.setMouseGrabbed(false);
-		state = GameState.inEditor;
-	}
-
 	private void initGame(GameContainer gc) throws SlickException
 	{
 		app.setMouseGrabbed(false);
 		state = GameState.inGame;
-		
+
 		Image img_perso = null;
 		img_floor = null;
 		try
@@ -95,15 +88,15 @@ public class Main extends BasicGame
 			switch (state)
 			{
 			case inGame:
-				initEditor(gc);
+				state = GameState.inEditor;
 				objects.setInEditor(true);
 				break;
 			case inEditor:
-				initGame(gc);
+				state = GameState.inGame;
 				objects.setInEditor(false);
 				break;
 			default:
-				initGame(gc);
+				state = GameState.inEditor;
 				objects.setInEditor(false);
 				break;
 			}
@@ -117,7 +110,7 @@ public class Main extends BasicGame
 	}
 
 	public void render(GameContainer gc, Graphics g) throws SlickException
-	{		
+	{
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
 
@@ -129,11 +122,12 @@ public class Main extends BasicGame
 		objects.render(gc, g, state, mouseX + (float) cam.getPos().X, mouseY + (float) cam.getPos().Y);
 
 		g.pushTransform();
+		g.resetTransform();
 		g.translate(-(float) cam.getPos().X, -(float) cam.getPos().Y);
 		g.setDrawMode(Graphics.MODE_NORMAL);
 		g.setColor(Color.white);
 		objects.printInfos(g);
-		
+
 		g.flush();
 	}
 

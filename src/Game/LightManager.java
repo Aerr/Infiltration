@@ -12,7 +12,18 @@ import org.newdawn.slick.opengl.renderer.SGL;
 public class LightManager
 {
 
-	LinkedList<Light> lights;
+	private LinkedList<Light> lights;
+
+	public LinkedList<Light> getLights()
+	{
+		return lights;
+	}
+
+	public void setLights(LinkedList<Light> lights)
+	{
+		this.lights = lights;
+	}
+
 	private int w;
 	private int h;
 	private Image texture;
@@ -33,13 +44,6 @@ public class LightManager
 
 	public void render(Graphics g, Rectangle current_room)
 	{
-		g.setColor(Color.pink);
-		for (int i = 0; i < lights.size(); i++)
-		{
-			Light curr = lights.get(i);
-			//			if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
-			g.fillOval(curr.GetX() - 15, curr.GetY() - 15, 30, 30);
-		}
 
 		if (current_room != null && room != null && !room.equals(current_room))
 		{
@@ -55,26 +59,24 @@ public class LightManager
 		GL11.glEnable(SGL.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
 
-		for (int i = 0; i < lights.size(); i++) 
+		for (int i = 0; i < lights.size(); i++)
 		{
 			Light curr = lights.get(i);
-			if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
+			if (room != null && room.contains((int) curr.getX(), (int) curr.getY()))
 			{
-				Image tmp = texture.getScaledCopy(curr.GetIntensity());
-				int w,h;
-				int x = (int)(curr.GetX() - tmp.getWidth() / 2);
-				int y = (int)(curr.GetY() - tmp.getHeight() / 2);
+				Image tmp = texture.getScaledCopy(curr.getIntensity());
+				int w, h;
+				int x = (int) (curr.getX() - tmp.getWidth() / 2);
+				int y = (int) (curr.getY() - tmp.getHeight() / 2);
 
 				x = Math.max(0, room.x - x);
 				y = Math.max(0, room.y - y);
 				w = Math.min(tmp.getWidth() - x, room.width);
 				h = Math.min(tmp.getHeight() - y, room.height);
-				
+
 				tmp = tmp.getSubImage(x, y, w, h);
-						
+
 				tmp.draw(room.x, room.y);
-				
-//				texture.drawCentered(curr.GetX(), curr.GetY());
 			}
 		}
 
@@ -105,10 +107,5 @@ public class LightManager
 
 		g.setColor(Color.black);
 		g.fillRect(0, 0, w, h);
-	}
-
-	public void AddLight(double x, double y, int intensity, int type)
-	{
-		lights.add(new Light(x, y, intensity, type));
 	}
 }
