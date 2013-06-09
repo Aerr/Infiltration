@@ -264,12 +264,14 @@ public class Player
 		Color startCol = new Color(0, 0, 0, 0.25f);
 
 		// DEBUG
+		// Collisions' dummy
 		g.drawRect((float) r2.getX(), (float) r2.getY(), (float) r2.getWidth(), (float) r2.getHeight());
-
+		// Collisions' residues
 		if (intersect != null)
 			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 		// ---DEBUG
 
+		// Shadow drawing
 		for (int i = 0; i < lights.size(); i++)
 		{
 			Light curr = lights.get(i);
