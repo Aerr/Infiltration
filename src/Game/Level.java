@@ -295,7 +295,7 @@ public class Level
 			}
 			else if (mode == Mode.Light.i())
 			{
-				g.setColor(Color.pink);
+				g.setColor(Color.magenta);
 				for (int i = 0; i < lights.size(); i++)
 				{
 					Light curr = lights.get(i);
@@ -459,12 +459,12 @@ public class Level
 
 	}
 
-	public void printInfo(Graphics g)
+	public void printInfo(Graphics g, Vector2 playerPos)
 	{
 		g.setColor(Color.red);
 		String[] m = new String[] { "Floor", "Wall", "Light", };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
-		g.fillOval((int) rect.getCenterX() - 15, (int) rect.getCenterY() - 15, 30, 30);
+		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 	}
 	// **/

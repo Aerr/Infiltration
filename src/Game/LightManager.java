@@ -24,8 +24,8 @@ public class LightManager
 		this.lights = lights;
 	}
 
-	private int w;
-	private int h;
+	private int resX;
+	private int resY;
 	private Image texture;
 	private Rectangle room;
 	private Rectangle old_room;
@@ -35,8 +35,8 @@ public class LightManager
 	public LightManager(int w, int h, Image texture)
 	{
 		lights = new LinkedList<Light>();
-		this.w = w;
-		this.h = h;
+		this.resX = w;
+		this.resY = h;
 		this.texture = texture;
 		color = new Color(0, 0, 0, 0.05f);
 		old_color = new Color(0, 0, 0, 0.05f);
@@ -65,18 +65,24 @@ public class LightManager
 			if (room != null && room.contains((int) curr.getX(), (int) curr.getY()))
 			{
 				Image tmp = texture.getScaledCopy(curr.getIntensity());
-				int w, h;
-				int x = (int) (curr.getX() - tmp.getWidth() / 2);
-				int y = (int) (curr.getY() - tmp.getHeight() / 2);
+				int srcX = (int) (curr.getX() - tmp.getWidth() / 2);
+				int srcY = (int) (curr.getY() - tmp.getHeight() / 2);
 
-				x = Math.max(0, room.x - x);
-				y = Math.max(0, room.y - y);
-				w = Math.min(tmp.getWidth() - x, room.width);
-				h = Math.min(tmp.getHeight() - y, room.height);
+				int x = Math.max(0, room.x - srcX);
+				int y =  Math.max(0, room.y - srcY);
+				
+				int w = Math.min(room.x + room.width - srcX, tmp.getWidth() - x);
+				int h = Math.min(room.y + room.height - srcY, tmp.getHeight() - y);
+
 
 				tmp = tmp.getSubImage(x, y, w, h);
 
-				tmp.draw(room.x, room.y);
+				if (x != 0)
+					srcX = room.x;
+				if (y != 0)
+					srcY = room.y;
+				
+				tmp.draw(srcX, srcY);
 			}
 		}
 
@@ -99,13 +105,13 @@ public class LightManager
 
 		g.resetTransform();
 		g.setColor(new Color(0, 0, 0, .001f));
-		g.fillRect(0, 0, w, h);
+		g.fillRect(0, 0, resX, resY);
 
 		g.setDrawMode(Graphics.MODE_ALPHA_BLEND);
 
 		GL11.glBlendFunc(GL11.GL_ONE_MINUS_DST_ALPHA, GL11.GL_DST_ALPHA);
 
 		g.setColor(Color.black);
-		g.fillRect(0, 0, w, h);
+		g.fillRect(0, 0, resX, resY);
 	}
 }

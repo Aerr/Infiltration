@@ -335,7 +335,7 @@ public class Player
 	{
 		for (int i = 0; i < rooms.size(); i++)
 		{
-			if (rooms.get(i).contains(pos.X, pos.Y, 240, 240) || rooms.get(i).intersects(pos.X, pos.Y, 240, 240))
+			if (rooms.get(i).contains(pos.X, pos.Y, 40, 40) || rooms.get(i).intersects(pos.X, pos.Y, 20, 20))
 				return rooms.get(i);
 		}
 		return null;

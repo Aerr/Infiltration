@@ -85,6 +85,6 @@ public class ObjectsHandler
 	public void printInfos(Graphics g)
 	{
 		if (inEditor)
-			level.printInfo(g);
+			level.printInfo(g, player.pos);
 	}
 }
