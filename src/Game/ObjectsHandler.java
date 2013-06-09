@@ -19,11 +19,11 @@ public class ObjectsHandler
 
 	private boolean inEditor;
 
-	public ObjectsHandler(int w, int h, Image img_perso, Image img_floor, Image img_wall, Image img_light)
+	public ObjectsHandler(int w, int h, Image img_perso, Image img_floor, Image img_wall, Image img_light, Image img_fight)
 	{
 		this.rects = new LinkedList<Rectangle>();
 
-		player = new Player(w, h, img_perso);
+		player = new Player(w, h, img_perso, img_fight);
 
 		level = new Level(img_wall);
 		this.rects = level.Load("level.cfg");

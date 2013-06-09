@@ -20,10 +20,6 @@ public class Main extends BasicGame
 	private int mouseX, mouseY;
 	private int width, height;
 	private Camera cam;
-	private Image img_light;
-	private Image img_wall;
-	private Image img_floor;
-
 	public Main()
 	{
 		super("Infiltration");
@@ -35,9 +31,14 @@ public class Main extends BasicGame
 		state = GameState.inGame;
 
 		Image img_perso = null;
-		img_floor = null;
+		Image img_fight = null;
+		Image img_floor = null;
+		Image img_wall = null;
+		Image img_light  = null;
+		
 		try
 		{
+			img_fight = new Image("images/hit.png");
 			img_perso = new Image("images/animations.png");
 			img_floor = new Image("images/floor.jpg");
 			img_wall = new Image("images/wall.jpg");
@@ -48,7 +49,7 @@ public class Main extends BasicGame
 			e.printStackTrace();
 		}
 
-		objects = new ObjectsHandler(width, height, img_perso, img_floor, img_wall, img_light);
+		objects = new ObjectsHandler(width, height, img_perso, img_floor, img_wall, img_light, img_fight);
 		cam = new Camera(width / 2, height / 2);
 	}
 

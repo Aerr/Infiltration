@@ -13,7 +13,7 @@ public class LightManager
 {
 
 	private LinkedList<Light> lights;
-	private static final float ambient_lum = 0.07f;
+	private static final float ambient_lum = 0.05f;
 	private static final float ambient_dark = 0.01f;
 
 	public LinkedList<Light> getLights()
@@ -40,8 +40,9 @@ public class LightManager
 		this.resX = w;
 		this.resY = h;
 		this.texture = texture;
-		color = new Color(0, 0, 0, ambient_lum);
-		old_color = new Color(0, 0, 0, ambient_lum);
+
+		color = Color.black;
+		old_color = Color.black;
 	}
 
 	public void render(Graphics g, Rectangle current_room)
@@ -95,22 +96,28 @@ public class LightManager
 			}
 		}
 		// For transitions
-		if (room != null && color.a != ambient_lum)
+		if (room != null)
 		{
 			g.setColor(color);
 			g.fillRect(room.x, room.y, room.width, room.height);
-			if (color.a < ambient_lum)
-				color.a += 0.0003;
-			else if (color.a > ambient_lum)
-				color.a = ambient_lum;
+			if (color.a != ambient_lum)
+			{
+				if (color.a < ambient_lum)
+					color.a += 0.0003;
+				else if (color.a > ambient_lum)
+					color.a = ambient_lum;
+			}
 		}
-		if (old_room != null && old_color.a > 0)
+		if (old_room != null)
 		{
 			g.setColor(old_color);
 			g.fillRect(old_room.x, old_room.y, old_room.width, old_room.height);
+			
 			if (old_color.a > 0)
 				old_color.a -= 0.0002;
 		}
+
+
 		g.resetTransform();
 		// We let a very reduced visibility of the neighbouring rooms
 		g.setColor(new Color(0, 0, 0, ambient_dark));
