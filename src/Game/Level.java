@@ -35,7 +35,7 @@ public class Level
 	}
 
 	private LinkedList<Obj> positions;
-	private LinkedList<Rectangle> rooms;
+	private LinkedList<Room> rooms;
 	private LinkedList<Light> lights;
 
 	public LinkedList<Obj> getPositions()
@@ -72,7 +72,7 @@ public class Level
 		this.inEditor = inEditor;
 	}
 
-	public LinkedList<Rectangle> getRooms()
+	public LinkedList<Room> getRooms()
 	{
 		return rooms;
 	}
@@ -81,7 +81,7 @@ public class Level
 	{
 		positions = new LinkedList<Obj>();
 		walls = new LinkedList<Rectangle>();
-		rooms = new LinkedList<Rectangle>();
+		rooms = new LinkedList<Room>();
 		lights = new LinkedList<Light>();
 
 		this.sprite = new SpriteSheet(wall, 1, 1);
@@ -172,8 +172,8 @@ public class Level
 						walls.add(new Rectangle((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
 								- temp.Y)));
 					else if (mode == Mode.Floor.i())
-						rooms.add(new Rectangle((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
-								- temp.Y)));
+						rooms.add(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
+								- temp.Y), 0));
 					temp = Vector2.Zero();
 				}
 			}
@@ -193,7 +193,7 @@ public class Level
 			{
 				for (int i = 0; i < rooms.size(); i++)
 				{
-					if (rooms.get(i).contains(mouse.X, mouse.Y, 30, 30) || rooms.get(i).intersects(mouse.X, mouse.Y, 30, 30))
+					if (rooms.get(i).contains(mouse.X, mouse.Y))
 						rooms.remove(i);
 				}
 			}
@@ -277,17 +277,16 @@ public class Level
 				for (int i = 0; i < rooms.size(); i++)
 				{
 					g.setColor(new Color(
-							(int) (rooms.get(i).getWidth()) / (i + 1),
-							(int) rooms.get(i).getY(),
-							(int) rooms.get(i).getX(),
+							(int) (rooms.get(i).width) / (i + 1),
+							(int) rooms.get(i).y,
+							(int) rooms.get(i).x,
 							128));
-					g.fillRect((float) rooms.get(i).getX(), (float) rooms.get(i).getY(), (float) rooms.get(i).getWidth(), (float) rooms
-							.get(i)
-							.getHeight());
+					g.fillRect((float) rooms.get(i).x, (float) rooms.get(i).y, (float) rooms.get(i).width, (float) rooms
+							.get(i).height);
 					g.setColor(Color.black);
-					g.drawRect((float) rooms.get(i).getX(), (float) rooms.get(i).getY(), (float) rooms.get(i).getWidth(), (float) rooms
+					g.drawRect((float) rooms.get(i).x, (float) rooms.get(i).y, (float) rooms.get(i).width, (float) rooms
 							.get(i)
-							.getHeight());
+							.height);
 				}
 			}
 			else if (mode == Mode.Light.i())
@@ -346,7 +345,7 @@ public class Level
 					if (line.equalsIgnoreCase("#"))
 						break;
 					String[] p = line.split(" ");
-					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+					Room r = new Room(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]), 0);
 					rooms.add(r);
 				}
 			}
@@ -403,13 +402,13 @@ public class Level
 			output.write("#\n");
 			for (int i = 0; i < rooms.size(); i++)
 			{
-				Rectangle curr = rooms.get(i);
+				Room curr = rooms.get(i);
 				output.write(String.format(
 						"%d %d %d %d\n",
-						(int) curr.getX(),
-						(int) curr.getY(),
-						(int) curr.getWidth(),
-						(int) curr.getHeight()));
+						(int) curr.x,
+						(int) curr.y,
+						(int) curr.width,
+						(int) curr.height));
 			}
 
 			output.write("#\n");

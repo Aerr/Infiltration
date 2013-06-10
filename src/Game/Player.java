@@ -281,7 +281,6 @@ public class Player
 
 	public void Render(GameContainer gc, Graphics g, LinkedList<Light> lights) throws SlickException
 	{
-		Color startCol = new Color(0, 0, 0, 0.25f);
 
 		// DEBUG
 		// Collisions' dummy
@@ -292,10 +291,13 @@ public class Player
 		// ---DEBUG
 
 		// Shadow drawing
+		Color startCol = new Color(0, 0, 0, 0.35f / lights.size());
 		for (int i = 0; i < lights.size(); i++)
 		{
+			Color tmp = startCol;
 			Light curr = lights.get(i);
-			if (curr.isSwitched_on() && curr.isOn())
+			double d = pos.getDistance(new Vector2(curr.getX(),curr.getY()));
+			if (d < 750000 && curr.isSwitched_on() && curr.isOn())
 			{
 				Rect rect =
 						new Rect(
@@ -307,8 +309,7 @@ public class Player
 								(int) pos.Y + 96,
 								(int) pos.X + 96,
 								(int) pos.Y + 96);
-				if (pos.getDistance(new Vector2(curr.getX(), curr.getY())) < 64)
-					startCol.a -= 0.2;
+				tmp.a -= d / 10000000f;
 
 				for (int j = 0; j < 4; j++)
 				{
@@ -323,7 +324,7 @@ public class Player
 							new GradientFill(
 									(l.x0 + l.x1) / 2,
 									(l.y1 + l.y0) / 2,
-									startCol,
+									tmp,
 									(l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
 									(l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
 									new Color(0, 0, 0, 0f));
@@ -359,11 +360,11 @@ public class Player
 		g.popTransform();
 	}
 
-	public Rectangle inRoom(LinkedList<Rectangle> rooms)
+	public Room inRoom(LinkedList<Room> rooms)
 	{
 		for (int i = 0; i < rooms.size(); i++)
 		{
-			if (rooms.get(i).contains(pos.X, pos.Y, 40, 40) || rooms.get(i).intersects(pos.X, pos.Y, 20, 20))
+			if (rooms.get(i).contains(pos.X, pos.Y))
 				return rooms.get(i);
 		}
 		return null;

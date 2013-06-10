@@ -1,6 +1,5 @@
 package Game;
 
-import java.awt.Rectangle;
 import java.util.LinkedList;
 
 import org.lwjgl.opengl.GL11;
@@ -29,8 +28,8 @@ public class LightManager
 	private int resX;
 	private int resY;
 	private Image texture;
-	private Rectangle room;
-	private Rectangle old_room;
+	private Room room;
+	private Room old_room;
 	private Color color;
 	private Color old_color;
 
@@ -45,7 +44,7 @@ public class LightManager
 		old_color = Color.black;
 	}
 
-	public void render(Graphics g, Rectangle current_room)
+	public void render(Graphics g, Room current_room)
 	{
 		// When room just changed
 		if (current_room != null && room != null && !room.equals(current_room))
@@ -70,6 +69,8 @@ public class LightManager
 			Light curr = lights.get(i);
 			if (room != null && room.contains((int) curr.getX(), (int) curr.getY()))
 			{
+				curr.setOn(true);
+				
 				// We take it to the right scale
 				Image tmp = texture.getScaledCopy(curr.getIntensity());
 				// Top-Left corner of the image (where it should be drawn)
@@ -108,7 +109,7 @@ public class LightManager
 					color.a += 0.0003;
 				else if (color.a > ambient_lum)
 					color.a = ambient_lum;
-			}
+			}	
 		}
 		if (old_room != null)
 		{

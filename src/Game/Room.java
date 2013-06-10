@@ -1,12 +1,8 @@
 package Game;
 
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.geom.Rectangle;
-
 public class Room
 {
 	public int x, y, width, height;
-	private Rectangle rect;
 	private int id;
 
 	public int getId()
@@ -20,17 +16,12 @@ public class Room
 		this.y = y;
 		this.width = width;
 		this.height = height;
-		rect = new Rectangle(x, y, width, height);
+		
 		this.id = id;
 	}
 	
-	public Rectangle r()
+	public boolean contains(double posX, double posY)
 	{
-		return rect;
-	}
-	
-	public void render(Graphics g)
-	{
-		
+		return (posX >= x && posX <= (x + width) && posY >= y && posY <= (y + height));
 	}
 }

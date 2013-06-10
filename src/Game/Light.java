@@ -56,6 +56,7 @@ public class Light
 		pos = new Vector2(x, y);
 		this.intensity = intensity;
 		this.type = type;
+		
 		this.switched_on = true;
 		this.on = true;
 	}
