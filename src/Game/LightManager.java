@@ -80,8 +80,8 @@ public class LightManager
 				int y = Math.max(0, room.y - srcY);
 				// We adjust the width/height depending on previous result
 				// and so that it does not exceed the room's bottom/right limits
-				int w = Math.min(room.x + room.width - srcX, tmp.getWidth() - x);
-				int h = Math.min(room.y + room.height - srcY, tmp.getHeight() - y);
+				int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
+				int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
 				// We get the subimage depending on the value we previously found
 				tmp = tmp.getSubImage(x, y, w, h);
 				// We place it where it should be :
@@ -94,6 +94,8 @@ public class LightManager
 				// We finally draw the mask
 				tmp.draw(srcX, srcY);
 			}
+			else
+				curr.setOn(false);
 		}
 		// For transitions
 		if (room != null)

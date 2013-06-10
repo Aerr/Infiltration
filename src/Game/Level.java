@@ -53,8 +53,8 @@ public class Level
 	LinkedList<Rectangle> walls;
 	private Rectangle rect;
 
-	private static final int[] gridW = new int[] { 268, 67, 268, };
-	private static final int[] gridH = new int[] { 178, 67, 178, };
+	private static final int[] gridW = new int[] { 268, 67, 1920, };
+	private static final int[] gridH = new int[] { 178, 67, 1080, };
 
 	private boolean inEditor;
 	private int mode;
@@ -148,10 +148,6 @@ public class Level
 		{
 			temp = Vector2.Zero();
 			mode = ++mode % Mode.End.i();
-			// if (mode == Mode.Floor)
-			// mode = Mode.Wall;
-			// else
-			// mode = Mode.Floor;
 		}
 		// Pressing Enter : creating rectangle (walls' collision ; defining rooms)
 		else if (ip.isKeyPressed(Input.KEY_ENTER) && !ip.isKeyDown(Input.KEY_X)) // To correct odd bug...
@@ -184,6 +180,7 @@ public class Level
 		}
 		else if (ip.isKeyPressed(Input.KEY_DELETE))
 		{
+			temp = Vector2.Zero();
 			if (mode == Mode.Wall.i())
 			{
 				for (int i = 0; i < walls.size(); i++)
@@ -371,8 +368,8 @@ public class Level
 				if (!line.equalsIgnoreCase(""))
 				{
 					String[] parts = line.split(" ");
-					Vector2 v = new Vector2(Double.valueOf(parts[1]), Double.valueOf(parts[2]));
-					positions.add(new Obj(v, Integer.valueOf(parts[0]), 0));
+					Vector2 v = new Vector2(Double.valueOf(parts[2]), Double.valueOf(parts[3]));
+					positions.add(new Obj(v, Integer.valueOf(parts[0]), Integer.valueOf(parts[1])));
 				}
 			}
 			reader.close();
@@ -433,7 +430,7 @@ public class Level
 			for (int i = 0; i < positions.size(); i++)
 			{
 				Obj curr = positions.get(i);
-				output.write(String.format("%d %d %d\n", curr.getT(), (int) curr.getPos().X, (int) curr.getPos().Y));
+				output.write(String.format("%d %d %d\n", curr.getT(), curr.getId(), (int) curr.getPos().X, (int) curr.getPos().Y));
 			}
 
 			output.flush();
