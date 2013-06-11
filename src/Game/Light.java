@@ -5,7 +5,7 @@ import Game.Basics.Vector2;
 public class Light
 {
 
-	private int intensity;
+	private float intensity;
 	private Vector2 pos;
 	private int type;
 	private boolean switched_on;
@@ -31,7 +31,7 @@ public class Light
 		this.on = on;
 	}
 
-	public int getIntensity()
+	public float getIntensity()
 	{
 		return this.intensity;
 	}
@@ -51,7 +51,7 @@ public class Light
 		return (float) pos.Y;
 	}
 
-	public Light(double x, double y, int intensity, int type)
+	public Light(double x, double y, float intensity, int type)
 	{
 		pos = new Vector2(x, y);
 		this.intensity = intensity;

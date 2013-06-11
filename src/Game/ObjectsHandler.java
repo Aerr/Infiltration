@@ -48,7 +48,7 @@ public class ObjectsHandler
 		level.renderWalls(g);
 
 		if (lightEnabled)
-			lightManager.render(g, player.inRoom(level.getRooms()));
+			lightManager.render(g, level.getCurrentRoom(player.pos));
 	}
 
 	public void update(double dt, double x, double y, Input ip, Vector2 camPos) throws SlickException
@@ -67,6 +67,11 @@ public class ObjectsHandler
 
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;
+		else if (ip.isKeyPressed(Input.KEY_F12) && inEditor)
+		{
+			level.Init();
+			this.rects = level.Load("level.cfg");
+		}
 	}
 
 	public Vector2 GetPlayerPos()

@@ -73,7 +73,7 @@ public class Player
 		crouch_walk = new Animation(spritesheet, 0, 3, 13, 3, true, 100, true);
 
 		spritesheet = new SpriteSheet(fight, 500, 529);
-		punch = new Animation(spritesheet, 0, 0, 13, 0, true, 75, true);
+		punch = new Animation(spritesheet, 0, 0, 13, 0, true, 55, true);
 
 	}
 
@@ -358,15 +358,5 @@ public class Player
 			break;
 		}
 		g.popTransform();
-	}
-
-	public Room inRoom(LinkedList<Room> rooms)
-	{
-		for (int i = 0; i < rooms.size(); i++)
-		{
-			if (rooms.get(i).contains(pos.X, pos.Y))
-				return rooms.get(i);
-		}
-		return null;
 	}
 }

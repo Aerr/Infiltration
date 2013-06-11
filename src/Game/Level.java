@@ -35,7 +35,7 @@ public class Level
 	}
 
 	private LinkedList<Obj> positions;
-	private LinkedList<Room> rooms;
+	private LinkedList<LinkedList<Room>> rooms;
 	private LinkedList<Light> lights;
 
 	public LinkedList<Obj> getPositions()
@@ -61,6 +61,8 @@ public class Level
 
 	private Vector2 temp;
 	private Vector2 mouse;
+	private int currentId;
+	private float currentIntensity;
 
 	public boolean isInEditor()
 	{
@@ -69,28 +71,49 @@ public class Level
 
 	public void setInEditor(boolean inEditor)
 	{
+//		this.Init();
 		this.inEditor = inEditor;
 	}
 
-	public LinkedList<Room> getRooms()
+	public LinkedList<Room> getCurrentRoom(Vector2 pos)
 	{
-		return rooms;
-	}
+		int i = 0;
+		for(LinkedList<Room> room: rooms) {
+			for(Room r: room) {
+				if (r.contains(pos.X, pos.Y))
+					return rooms.get(i);
+			}
+			i++;
+		}
+		return null;
+	}	
+
 
 	public Level(Image wall)
 	{
-		positions = new LinkedList<Obj>();
-		walls = new LinkedList<Rectangle>();
-		rooms = new LinkedList<Room>();
-		lights = new LinkedList<Light>();
-
+		this.Init();
+		
 		this.sprite = new SpriteSheet(wall, 1, 1);
 
 		rect = new Rectangle(0, 0, 1920, 1080);
-		inEditor = false;
 
+		inEditor = false;
 		mode = Mode.Floor.i();
+
+	}
+	public void Init()
+	{
+		positions = new LinkedList<Obj>();
+		walls = new LinkedList<Rectangle>();
+
+		rooms = new LinkedList<LinkedList<Room>>();
+
+		lights = new LinkedList<Light>();
+
 		temp = Vector2.Zero();
+		
+		currentId = 0;
+		currentIntensity = 1;
 	}
 
 	public void Update(Vector2 pos)
@@ -108,7 +131,7 @@ public class Level
 			if (mode == Mode.Light.i())
 			{
 				if (ip.isMousePressed(0))
-					lights.add(new Light(mouse.X, mouse.Y, 1, 0));
+					lights.add(new Light(mouse.X, mouse.Y, currentIntensity, 0));
 				else if (ip.isMouseButtonDown(1))
 				{
 					for (int i = 0; i < lights.size(); i++)
@@ -172,8 +195,12 @@ public class Level
 						walls.add(new Rectangle((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
 								- temp.Y)));
 					else if (mode == Mode.Floor.i())
-						rooms.add(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
-								- temp.Y), 0));
+					{
+						while (currentId > rooms.size() - 1)
+							rooms.add(new LinkedList<Room>());
+						rooms.get(currentId).add(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
+								- temp.Y), currentId));
+					}
 					temp = Vector2.Zero();
 				}
 			}
@@ -191,12 +218,31 @@ public class Level
 			}
 			else if (mode == Mode.Floor.i())
 			{
-				for (int i = 0; i < rooms.size(); i++)
-				{
-					if (rooms.get(i).contains(mouse.X, mouse.Y))
-						rooms.remove(i);
+
+				for(LinkedList<Room> room: rooms) {
+					for(Room r: room) {
+						if (r.contains(mouse.X, mouse.Y))
+						{
+							room.remove(r);
+							break;
+						}
+					}
 				}
 			}
+		}
+		else if (ip.isKeyPressed(Input.KEY_NEXT))
+		{
+			if (mode == (Mode.Floor).i())
+				currentId++;
+			else if (mode == (Mode.Light).i())
+				currentIntensity += 0.2f;
+		}
+		else if (ip.isKeyPressed(Input.KEY_PRIOR))
+		{
+			if (mode == (Mode.Floor).i())
+				currentId--;
+			else if (mode == (Mode.Light).i() && currentIntensity > 0.2f)
+				currentIntensity -= 0.2f;
 		}
 	}
 
@@ -274,19 +320,17 @@ public class Level
 			}
 			else if (mode == Mode.Floor.i())
 			{
-				for (int i = 0; i < rooms.size(); i++)
-				{
-					g.setColor(new Color(
-							(int) (rooms.get(i).width) / (i + 1),
-							(int) rooms.get(i).y,
-							(int) rooms.get(i).x,
-							128));
-					g.fillRect((float) rooms.get(i).x, (float) rooms.get(i).y, (float) rooms.get(i).width, (float) rooms
-							.get(i).height);
-					g.setColor(Color.black);
-					g.drawRect((float) rooms.get(i).x, (float) rooms.get(i).y, (float) rooms.get(i).width, (float) rooms
-							.get(i)
-							.height);
+				for(LinkedList<Room> room: rooms) {
+					for(Room r: room) {
+						g.setColor(new Color(
+								(int) (r.width) / (r.getId() + 1),
+								(int) r.y,
+								(int) r.x,
+								128));
+						g.fillRect((float) r.x, (float) r.y, (float) r.width, (float) r.height);
+						g.setColor(Color.black);
+						g.drawRect((float) r.x, (float) r.y, (float) r.width, (float) r.height);
+					}
 				}
 			}
 			else if (mode == Mode.Light.i())
@@ -325,15 +369,17 @@ public class Level
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line = null;
+			
+			reader.readLine();
 			// Reading positions and intensity and id for lights
 			while ((line = reader.readLine()) != null)
 			{
 				if (!line.equalsIgnoreCase(""))
 				{
-					if (line.equalsIgnoreCase("#"))
+					if (line.charAt(0) == '#')
 						break;
 					String[] p = line.split(" ");
-					Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+					Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]),  Float.parseFloat(p[2]), Integer.valueOf(p[3]));
 					lights.add(l);
 				}
 			}
@@ -342,11 +388,15 @@ public class Level
 			{
 				if (!line.equalsIgnoreCase(""))
 				{
-					if (line.equalsIgnoreCase("#"))
+					if (line.charAt(0) == '#')
 						break;
 					String[] p = line.split(" ");
-					Room r = new Room(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]), 0);
-					rooms.add(r);
+					int i = Integer.valueOf(p[4]);
+					Room r = new Room(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]), i);
+					while (i > rooms.size() - 1)
+						rooms.add(new LinkedList<Room>());
+
+					rooms.get(i).add(r);
 				}
 			}
 			// Reading rectangles for wall collisions
@@ -354,7 +404,7 @@ public class Level
 			{
 				if (!line.equalsIgnoreCase(""))
 				{
-					if (line.equalsIgnoreCase("#"))
+					if (line.charAt(0) == '#')
 						break;
 					String[] p = line.split(" ");
 					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
@@ -368,7 +418,7 @@ public class Level
 				{
 					String[] parts = line.split(" ");
 					Vector2 v = new Vector2(Double.valueOf(parts[2]), Double.valueOf(parts[3]));
-					positions.add(new Obj(v, Integer.valueOf(parts[0]), Integer.valueOf(parts[1])));
+					positions.add(new Obj(v, Integer.valueOf(parts[0]),  Integer.valueOf(parts[1])));
 				}
 			}
 			reader.close();
@@ -388,30 +438,34 @@ public class Level
 		{
 			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/" + "level.cfg", false);
 			BufferedWriter output = new BufferedWriter(fw);
+			output.write("#--LIGHTS--#\n");
+			
 			for (int i = 0; i < lights.size(); i++)
 			{
 				Light curr = lights.get(i);
 				output.write(String.format(
-						"%d %d %d %d\n",
+						"%d %d %s %d\n",
 						(int) curr.getX(),
 						(int) curr.getY(),
-						(int) curr.getIntensity(),
-						(int) curr.getType()));
+						Float.toString(curr.getIntensity()),
+						(int)curr.getType()));
 			}
 
-			output.write("#\n");
-			for (int i = 0; i < rooms.size(); i++)
-			{
-				Room curr = rooms.get(i);
-				output.write(String.format(
-						"%d %d %d %d\n",
-						(int) curr.x,
-						(int) curr.y,
-						(int) curr.width,
-						(int) curr.height));
+			output.write("#--ROOMS--#\n");
+			
+			for(LinkedList<Room> room: rooms) {
+				for(Room r: room) {
+					output.write(String.format(
+							"%d %d %d %d %d\n",
+							(int) r.x,
+							(int) r.y,
+							(int) r.width,
+							(int) r.height,
+							(int) r.getId()));
+				}
 			}
 
-			output.write("#\n");
+			output.write("#--WALLS--#\n");
 
 			for (int i = 0; i < walls.size(); i++)
 			{
@@ -424,12 +478,12 @@ public class Level
 						(int) curr.getHeight()));
 			}
 
-			output.write("#\n");
+			output.write("#--TEXTURES--#\n");
 
 			for (int i = 0; i < positions.size(); i++)
 			{
 				Obj curr = positions.get(i);
-				output.write(String.format("%d %d %d\n", curr.getT(), curr.getId(), (int) curr.getPos().X, (int) curr.getPos().Y));
+				output.write(String.format("%d %d %d %d\n", curr.getT(), curr.getId(), (int) curr.getPos().X, (int) curr.getPos().Y));
 			}
 
 			output.flush();
@@ -460,6 +514,10 @@ public class Level
 		g.setColor(Color.red);
 		String[] m = new String[] { "Floor", "Wall", "Light", };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
+		if (mode == (Mode.Floor).i())
+			g.drawString("(Id: " + currentId + ")", rect.x + 10, rect.y + 65);
+		else if (mode == (Mode.Light).i())
+			g.drawString("(Intensity: " + currentIntensity + ")", rect.x + 10, rect.y + 65);
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 	}
