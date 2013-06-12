@@ -46,6 +46,7 @@ public class Player
 	private Rectangle collision;
 	private Rectangle intersect;
 	public Vector2 pos;
+	private Vector2 old_sign;
 
 	public Vector2 getPos()
 	{
@@ -80,6 +81,7 @@ public class Player
 		spritesheet = new SpriteSheet(fight, 500, 529);
 		punch = new Animation(spritesheet, 0, 0, 13, 0, true, 55, true);
 
+		old_sign = Vector2.Zero();
 	}
 
 	public void HandleInput(Input ip, double dt) throws SlickException
@@ -97,7 +99,7 @@ public class Player
 				punch.restart();
 			}
 		}
-		else 
+		else
 		{
 			// /** Movement Speed control
 			if (ip.isKeyDown(Input.KEY_LSHIFT))
@@ -216,19 +218,31 @@ public class Player
 
 	public void Update(LinkedList<Rectangle> rects)
 	{
+		// No need to update when not moving
+		// -> No collisions, no change of angles, no change of position
 		if (move != Move.IdleStand && move != Move.IdleCrouch && move != Move.Punch)
 		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
 
-			collision.x = (int) (pos.X + signOf(speed.X) * size * 0.5f);
-			collision.y = (int) (pos.Y + signOf(speed.Y) * size * 0.5f);
+			Vector2 sign = new Vector2(1, 1);
+			sign.X = signOf(speed.X);
+			if (sign.X == 0)
+				sign.X = old_sign.X;
+			sign.Y = signOf(speed.Y);
+			if (sign.Y == 0)
+				sign.Y = old_sign.Y;
+
+			collision.x = (int) (pos.X + sign.X * size * 0.5f);
+			collision.y = (int) (pos.Y + sign.Y * size * 0.5f);
+
+			old_sign = sign;
 
 			boolean colliding = false;
-			for (int i = 0; i < rects.size(); i++)
+			for (Rectangle r : rects)
 			{
-				if (collision.contains(rects.get(i)) || collision.intersects(rects.get(i)))
+				if (collision.contains(r) || collision.intersects(r))
 				{
-					intersect = (Rectangle) collision.createIntersection(rects.get(i));
+					intersect = (Rectangle) collision.createIntersection(r);
 					double w = intersect.getWidth();
 					double h = intersect.getHeight();
 					if (h < 9 || Math.min(h, w) == h)
@@ -296,14 +310,14 @@ public class Player
 		if (intersect != null)
 			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
-		//		g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
+		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG
 
 		// Shadow drawing
-		for (Light curr: lights)
+		for (Light curr : lights)
 		{
 			Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
-			double d = pos.getDistance(new Vector2(curr.getX(),curr.getY()));
+			double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
 			if (curr.isSwitched_on() && curr.isOn())
 			{
 				Rect rect =
@@ -358,7 +372,7 @@ public class Player
 			crouch_walk.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		case Punch:
-			punch.draw((float)pos.X - 185 * scale, (float)pos.Y - 265 * scale, 500 * 0.75f, 529 * 0.75f);
+			punch.draw((float) pos.X - 185 * scale, (float) pos.Y - 265 * scale, 500 * 0.75f, 529 * 0.75f);
 			break;
 		default:
 			stand_walk.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());

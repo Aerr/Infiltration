@@ -9,6 +9,7 @@ public class Light
 	private Vector2 pos;
 	private int type;
 	private boolean switched_on;
+
 	public boolean isSwitched_on()
 	{
 		return switched_on;
@@ -56,7 +57,7 @@ public class Light
 		pos = new Vector2(x, y);
 		this.intensity = intensity;
 		this.type = type;
-		
+
 		this.switched_on = true;
 		this.on = true;
 	}

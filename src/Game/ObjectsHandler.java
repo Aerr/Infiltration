@@ -3,10 +3,14 @@ package Game;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+
 import Game.Main.GameState;
 import Game.Basics.Vector2;
-
-import org.newdawn.slick.*;
 
 public class ObjectsHandler
 {
@@ -29,7 +33,7 @@ public class ObjectsHandler
 		this.rects = level.Load("level.cfg");
 
 		lightEnabled = true;
-		lightManager = new LightManager(w, h, img_light);
+		lightManager = new LightManager(w, h, img_light, level.getCurrentRoom(player.getPos()));
 	}
 
 	public double random(double x, double y)
@@ -47,7 +51,7 @@ public class ObjectsHandler
 		level.renderWalls(g);
 
 		if (lightEnabled)
-			lightManager.render(g, level.getCurrentRoom(player.getPos()));
+			lightManager.render(g);
 	}
 
 	public void update(double dt, double x, double y, Input ip, Vector2 camPos) throws SlickException
@@ -55,9 +59,7 @@ public class ObjectsHandler
 
 		level.Update(camPos);
 		if (inEditor)
-		{
 			level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip);
-		}
 
 		player.HandleInput(ip, dt);
 		player.Update(rects);
@@ -69,6 +71,9 @@ public class ObjectsHandler
 			level.Init();
 			this.rects = level.Load("level.cfg");
 		}
+
+		if (lightEnabled)
+			lightManager.update(dt, level.getCurrentRoom(player.getPos()));
 	}
 
 	public Vector2 GetPlayerPos()

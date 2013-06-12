@@ -1,9 +1,15 @@
 package Game;
 
-import Game.ObjectsHandler;
-import Game.Basics.Camera;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 
-import org.newdawn.slick.*;
+import Game.Basics.Camera;
 
 public class Main extends BasicGame
 {
@@ -20,6 +26,7 @@ public class Main extends BasicGame
 	private int mouseX, mouseY;
 	private int width, height;
 	private Camera cam;
+
 	public Main()
 	{
 		super("Infiltration");
@@ -34,8 +41,8 @@ public class Main extends BasicGame
 		Image img_fight = null;
 		Image img_floor = null;
 		Image img_wall = null;
-		Image img_light  = null;
-		
+		Image img_light = null;
+
 		try
 		{
 			img_fight = new Image("images/hit.png");
@@ -76,7 +83,7 @@ public class Main extends BasicGame
 
 		cam.update(objects.GetPlayerPos());
 
-		objects.update(bt * (double) delta / 1000f, mouseX, mouseY, ip, cam.getPos());
+		objects.update(bt * delta / 1000f, mouseX, mouseY, ip, cam.getPos());
 
 		// Press tab to restart
 		if (ip.isKeyPressed(Input.KEY_TAB))
@@ -110,6 +117,7 @@ public class Main extends BasicGame
 		}
 	}
 
+	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException
 	{
 		g.setDrawMode(Graphics.MODE_NORMAL);

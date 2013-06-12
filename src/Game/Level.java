@@ -1,9 +1,9 @@
 package Game;
 
 import java.awt.Rectangle;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -65,35 +65,39 @@ public class Level
 
 	public void setInEditor(boolean inEditor)
 	{
-		//		this.Init();
+		// this.Init();
 		this.inEditor = inEditor;
 	}
 
 	public GroupedRooms getCurrentRoom(Vector2 pos)
 	{
 		int i = 0;
-		for(GroupedRooms room: rooms) {
-			for(Room r: room.getRooms()) {
+		for (GroupedRooms room : rooms)
+		{
+			for (Room r : room.getRooms())
+			{
 				if (r.contains(pos.X, pos.Y))
 					return rooms.get(i);
 			}
 			i++;
 		}
 		return null;
-	}	
+	}
+
 	public LinkedList<Light> getCurrentLights(Vector2 pos)
 	{
 		int i = 0;
-		for(GroupedRooms room: rooms) {
-			for(Room r: room.getRooms()) {
+		for (GroupedRooms room : rooms)
+		{
+			for (Room r : room.getRooms())
+			{
 				if (r.contains(pos.X, pos.Y))
 					return rooms.get(i).getLights();
 			}
 			i++;
 		}
 		return null;
-	}	
-
+	}
 
 	public Level(Image wall)
 	{
@@ -107,6 +111,7 @@ public class Level
 		mode = Mode.Floor.i();
 
 	}
+
 	public void Init()
 	{
 		positions = new LinkedList<Obj>();
@@ -142,9 +147,11 @@ public class Level
 				}
 				else if (ip.isMouseButtonDown(1))
 				{
-					
-					for(GroupedRooms room: rooms) {
-						for(Light l: room.getLights()) {
+
+					for (GroupedRooms room : rooms)
+					{
+						for (Light l : room.getLights())
+						{
 							if (mouse.getDistance(new Vector2(l.getX(), l.getY())) < 100)
 							{
 								room.removeLight(l);
@@ -208,8 +215,8 @@ public class Level
 					{
 						while (currentId > rooms.size() - 1)
 							rooms.add(new GroupedRooms());
-						rooms.get(currentId).addRoom(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
-								- temp.Y)));
+						rooms.get(currentId).addRoom(
+								new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y - temp.Y)));
 					}
 					temp = Vector2.Zero();
 				}
@@ -220,17 +227,19 @@ public class Level
 			temp = Vector2.Zero();
 			if (mode == Mode.Wall.i())
 			{
-				for (int i = 0; i < walls.size(); i++)
+				for (Rectangle w : walls)
 				{
-					if (walls.get(i).contains(mouse.X, mouse.Y, 30, 30) || walls.get(i).intersects(mouse.X, mouse.Y, 30, 30))
-						walls.remove(i);
+					if (w.contains(mouse.X, mouse.Y, 30, 30) || w.intersects(mouse.X, mouse.Y, 30, 30))
+						walls.remove(w);
 				}
 			}
 			else if (mode == Mode.Floor.i())
 			{
 
-				for(GroupedRooms room: rooms) {
-					for(Room r: room.getRooms()) {
+				for (GroupedRooms room : rooms)
+				{
+					for (Room r : room.getRooms())
+					{
 						if (r.contains(mouse.X, mouse.Y))
 						{
 							room.removeRoom(r);
@@ -258,7 +267,7 @@ public class Level
 
 	public void render(Graphics g)
 	{
-		for (Obj curr: positions)
+		for (Obj curr : positions)
 		{
 			Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 			if (rect.contains(currRect) || rect.intersects(currRect))
@@ -277,10 +286,10 @@ public class Level
 		{
 			g.setColor(Color.darkGray);
 
-			for (int i = (int) (rect.y / gridH[mode]); i * gridH[mode] <= 1080 + (int) (rect.y); i++)
+			for (int i = rect.y / gridH[mode]; i * gridH[mode] <= 1080 + (rect.y); i++)
 				g.drawLine(rect.x, i * gridH[mode], rect.x + 1920, i * gridH[mode]);
 
-			for (int i = (int) (rect.x / gridW[mode]); i * gridW[mode] <= 1920 + (int) (rect.x); i++)
+			for (int i = rect.x / gridW[mode]; i * gridW[mode] <= 1920 + (rect.x); i++)
 				g.drawLine(i * gridW[mode], rect.y, i * gridW[mode], rect.y + 1080);
 
 			if (!temp.isZero())
@@ -302,7 +311,7 @@ public class Level
 		{
 			h += gridH[j];
 		}
-		for (Obj curr: positions)
+		for (Obj curr : positions)
 		{
 			if (curr.getT() == Mode.Wall.i())
 			{
@@ -319,32 +328,31 @@ public class Level
 			if (mode == Mode.Wall.i())
 			{
 				g.setColor(Color.white);
-				for (int i = 0; i < walls.size(); i++)
+				for (Rectangle w : walls)
 				{
-					g.drawRect((float) walls.get(i).getX(), (float) walls.get(i).getY(), (float) walls.get(i).getWidth(), (float) walls
-							.get(i)
-							.getHeight());
+					g.drawRect((float) w.getX(), (float) w.getY(), (float) w.getWidth(), (float) w.getHeight());
 				}
 			}
 			else if (mode == Mode.Floor.i())
 			{
-				for(GroupedRooms room: rooms) {
-					for(Room r: room.getRooms()) {
-						g.setColor(new Color(
-								(int) (r.width),
-								(int) r.y,
-								(int) r.x,
-								128));
-						g.fillRect((float) r.x, (float) r.y, (float) r.width, (float) r.height);
+				for (GroupedRooms room : rooms)
+				{
+					for (Room r : room.getRooms())
+					{
+						g.setColor(new Color((r.width), r.y, r.x, 128));
+						g.fillRect(r.x, r.y, r.width, r.height);
 						g.setColor(Color.black);
-						g.drawRect((float) r.x, (float) r.y, (float) r.width, (float) r.height);
+						g.drawRect(r.x, r.y, r.width, r.height);
 					}
 				}
 			}
 			else if (mode == Mode.Light.i())
 			{
-				g.setColor(Color.magenta);for(GroupedRooms room: rooms) {
-					for(Light l: room.getLights()) {
+				g.setColor(Color.magenta);
+				for (GroupedRooms room : rooms)
+				{
+					for (Light l : room.getLights())
+					{
 						// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
 						g.fillOval(l.getX() - 15, l.getY() - 15, 30, 30);
 					}
@@ -403,7 +411,7 @@ public class Level
 						if (line.charAt(0) == '#')
 							break;
 						String[] p = line.split(" ");
-						Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]),  Float.parseFloat(p[2]), Integer.valueOf(p[3]));
+						Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Float.parseFloat(p[2]), Integer.valueOf(p[3]));
 						rooms.get(i).addLight(l);
 					}
 				}
@@ -428,7 +436,7 @@ public class Level
 				{
 					String[] parts = line.split(" ");
 					Vector2 v = new Vector2(Double.valueOf(parts[2]), Double.valueOf(parts[3]));
-					positions.add(new Obj(v, Integer.valueOf(parts[0]),  Integer.valueOf(parts[1])));
+					positions.add(new Obj(v, Integer.valueOf(parts[0]), Integer.valueOf(parts[1])));
 				}
 			}
 			reader.close();
@@ -451,26 +459,24 @@ public class Level
 
 			int i = 1;
 
-			for(GroupedRooms room: rooms) {
-				output.write(String.format("#--ROOM %d--#\n",i++));
+			for (GroupedRooms room : rooms)
+			{
+				output.write(String.format("#--ROOM %d--#\n", i++));
 				output.write("#--Rectangles--#\n");
-				for(Room r: room.getRooms()) {
-					output.write(String.format(
-							"%d %d %d %d\n",
-							(int) r.x,
-							(int) r.y,
-							(int) r.width,
-							(int) r.height));
+				for (Room r : room.getRooms())
+				{
+					output.write(String.format("%d %d %d %d\n", r.x, r.y, r.width, r.height));
 				}
 
 				output.write("#--Lights--#\n");
-				for(Light l: room.getLights()) {
+				for (Light l : room.getLights())
+				{
 					output.write(String.format(
 							"%d %d %s %d\n",
 							(int) l.getX(),
 							(int) l.getY(),
 							Float.toString(l.getIntensity()),
-							(int)l.getType()));
+							l.getType()));
 				}
 				output.write(String.format("\n"));
 			}
@@ -478,7 +484,8 @@ public class Level
 			output.write(String.format("\n"));
 			output.write("##--WALLS--##\n");
 
-			for(Rectangle curr: walls) {
+			for (Rectangle curr : walls)
+			{
 				output.write(String.format(
 						"%d %d %d %d\n",
 						(int) curr.getX(),
@@ -491,7 +498,8 @@ public class Level
 			output.write(String.format("\n"));
 			output.write("##--TEXTURES--##\n");
 
-			for(Obj curr: positions) {
+			for (Obj curr : positions)
+			{
 				output.write(String.format("%d %d %d %d\n", curr.getT(), curr.getId(), (int) curr.getPos().X, (int) curr.getPos().Y));
 			}
 
