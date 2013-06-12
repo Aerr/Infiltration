@@ -291,13 +291,13 @@ public class Player
 		// ---DEBUG
 
 		// Shadow drawing
-		Color startCol = new Color(0, 0, 0, 0.35f / lights.size());
-		for (int i = 0; i < lights.size(); i++)
+//		Color startCol = new Color(0, 0, 0, 0.35f);
+		for (int i = 0; lights != null && i < lights.size(); i++)
 		{
-			Color tmp = startCol;
+			Color tmp = new Color(0, 0, 0, 0.35f);;
 			Light curr = lights.get(i);
 			double d = pos.getDistance(new Vector2(curr.getX(),curr.getY()));
-			if (d < 750000 && curr.isSwitched_on() && curr.isOn())
+			if (curr.isSwitched_on() && curr.isOn())
 			{
 				Rect rect =
 						new Rect(
@@ -309,7 +309,7 @@ public class Player
 								(int) pos.Y + 96,
 								(int) pos.X + 96,
 								(int) pos.Y + 96);
-				tmp.a -= d / 10000000f;
+				tmp.a -= d / 1500000f;
 
 				for (int j = 0; j < 4; j++)
 				{

@@ -35,17 +35,11 @@ public class Level
 	}
 
 	private LinkedList<Obj> positions;
-	private LinkedList<LinkedList<Room>> rooms;
-	private LinkedList<Light> lights;
+	private LinkedList<GroupedRooms> rooms;
 
 	public LinkedList<Obj> getPositions()
 	{
 		return positions;
-	}
-
-	public LinkedList<Light> getLights()
-	{
-		return lights;
 	}
 
 	private SpriteSheet sprite;
@@ -71,17 +65,29 @@ public class Level
 
 	public void setInEditor(boolean inEditor)
 	{
-//		this.Init();
+		//		this.Init();
 		this.inEditor = inEditor;
 	}
 
-	public LinkedList<Room> getCurrentRoom(Vector2 pos)
+	public GroupedRooms getCurrentRoom(Vector2 pos)
 	{
 		int i = 0;
-		for(LinkedList<Room> room: rooms) {
-			for(Room r: room) {
+		for(GroupedRooms room: rooms) {
+			for(Room r: room.getRooms()) {
 				if (r.contains(pos.X, pos.Y))
 					return rooms.get(i);
+			}
+			i++;
+		}
+		return null;
+	}	
+	public LinkedList<Light> getCurrentLights(Vector2 pos)
+	{
+		int i = 0;
+		for(GroupedRooms room: rooms) {
+			for(Room r: room.getRooms()) {
+				if (r.contains(pos.X, pos.Y))
+					return rooms.get(i).getLights();
 			}
 			i++;
 		}
@@ -92,7 +98,7 @@ public class Level
 	public Level(Image wall)
 	{
 		this.Init();
-		
+
 		this.sprite = new SpriteSheet(wall, 1, 1);
 
 		rect = new Rectangle(0, 0, 1920, 1080);
@@ -106,12 +112,10 @@ public class Level
 		positions = new LinkedList<Obj>();
 		walls = new LinkedList<Rectangle>();
 
-		rooms = new LinkedList<LinkedList<Room>>();
-
-		lights = new LinkedList<Light>();
+		rooms = new LinkedList<GroupedRooms>();
 
 		temp = Vector2.Zero();
-		
+
 		currentId = 0;
 		currentIntensity = 1;
 	}
@@ -131,15 +135,21 @@ public class Level
 			if (mode == Mode.Light.i())
 			{
 				if (ip.isMousePressed(0))
-					lights.add(new Light(mouse.X, mouse.Y, currentIntensity, 0));
+				{
+					while (currentId > rooms.size() - 1)
+						rooms.add(new GroupedRooms());
+					rooms.get(currentId).addLight(new Light(mouse.X, mouse.Y, currentIntensity, 0));
+				}
 				else if (ip.isMouseButtonDown(1))
 				{
-					for (int i = 0; i < lights.size(); i++)
-					{
-						if (mouse.getDistance(new Vector2(lights.get(i).getX(), lights.get(i).getY())) < 100)
-						{
-							lights.remove(i);
-							break;
+					
+					for(GroupedRooms room: rooms) {
+						for(Light l: room.getLights()) {
+							if (mouse.getDistance(new Vector2(l.getX(), l.getY())) < 100)
+							{
+								room.removeLight(l);
+								break;
+							}
 						}
 					}
 				}
@@ -197,9 +207,9 @@ public class Level
 					else if (mode == Mode.Floor.i())
 					{
 						while (currentId > rooms.size() - 1)
-							rooms.add(new LinkedList<Room>());
-						rooms.get(currentId).add(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
-								- temp.Y), currentId));
+							rooms.add(new GroupedRooms());
+						rooms.get(currentId).addRoom(new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y
+								- temp.Y)));
 					}
 					temp = Vector2.Zero();
 				}
@@ -219,11 +229,11 @@ public class Level
 			else if (mode == Mode.Floor.i())
 			{
 
-				for(LinkedList<Room> room: rooms) {
-					for(Room r: room) {
+				for(GroupedRooms room: rooms) {
+					for(Room r: room.getRooms()) {
 						if (r.contains(mouse.X, mouse.Y))
 						{
-							room.remove(r);
+							room.removeRoom(r);
 							break;
 						}
 					}
@@ -320,10 +330,10 @@ public class Level
 			}
 			else if (mode == Mode.Floor.i())
 			{
-				for(LinkedList<Room> room: rooms) {
-					for(Room r: room) {
+				for(GroupedRooms room: rooms) {
+					for(Room r: room.getRooms()) {
 						g.setColor(new Color(
-								(int) (r.width) / (r.getId() + 1),
+								(int) (r.width),
 								(int) r.y,
 								(int) r.x,
 								128));
@@ -335,12 +345,11 @@ public class Level
 			}
 			else if (mode == Mode.Light.i())
 			{
-				g.setColor(Color.magenta);
-				for (int i = 0; i < lights.size(); i++)
-				{
-					Light curr = lights.get(i);
-					// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
-					g.fillOval(curr.getX() - 15, curr.getY() - 15, 30, 30);
+				g.setColor(Color.magenta);for(GroupedRooms room: rooms) {
+					for(Light l: room.getLights()) {
+						// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
+						g.fillOval(l.getX() - 15, l.getY() - 15, 30, 30);
+					}
 				}
 			}
 		}
@@ -369,36 +378,39 @@ public class Level
 		{
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line = null;
-			
-			reader.readLine();
-			// Reading positions and intensity and id for lights
-			while ((line = reader.readLine()) != null)
-			{
-				if (!line.equalsIgnoreCase(""))
-				{
-					if (line.charAt(0) == '#')
-						break;
-					String[] p = line.split(" ");
-					Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]),  Float.parseFloat(p[2]), Integer.valueOf(p[3]));
-					lights.add(l);
-				}
-			}
-			// Reading rectangles for rooms
-			while ((line = reader.readLine()) != null)
-			{
-				if (!line.equalsIgnoreCase(""))
-				{
-					if (line.charAt(0) == '#')
-						break;
-					String[] p = line.split(" ");
-					int i = Integer.valueOf(p[4]);
-					Room r = new Room(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]), i);
-					while (i > rooms.size() - 1)
-						rooms.add(new LinkedList<Room>());
 
-					rooms.get(i).add(r);
+			int i = 0;
+			reader.readLine();
+			// Reading rectangles for rooms
+			do
+			{
+				reader.readLine();
+				rooms.add(new GroupedRooms());
+				while ((line = reader.readLine()) != null)
+				{
+					if (!line.equalsIgnoreCase(""))
+					{
+						if (line.charAt(0) == '#')
+							break;
+						String[] p = line.split(" ");
+						Room r = new Room(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+						rooms.get(i).addRoom(r);
+					}
 				}
-			}
+				// Reading positions and intensity and id for lights
+				while ((line = reader.readLine()) != null)
+				{
+					if (!line.equalsIgnoreCase(""))
+					{
+						if (line.charAt(0) == '#')
+							break;
+						String[] p = line.split(" ");
+						Light l = new Light(Integer.valueOf(p[0]), Integer.valueOf(p[1]),  Float.parseFloat(p[2]), Integer.valueOf(p[3]));
+						rooms.get(i).addLight(l);
+					}
+				}
+				i++;
+			} while (line != null && line.charAt(1) != '#');
 			// Reading rectangles for wall collisions
 			while ((line = reader.readLine()) != null)
 			{
@@ -438,38 +450,37 @@ public class Level
 		{
 			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/" + "level.cfg", false);
 			BufferedWriter output = new BufferedWriter(fw);
-			output.write("#--LIGHTS--#\n");
-			
-			for (int i = 0; i < lights.size(); i++)
-			{
-				Light curr = lights.get(i);
-				output.write(String.format(
-						"%d %d %s %d\n",
-						(int) curr.getX(),
-						(int) curr.getY(),
-						Float.toString(curr.getIntensity()),
-						(int)curr.getType()));
-			}
 
-			output.write("#--ROOMS--#\n");
-			
-			for(LinkedList<Room> room: rooms) {
-				for(Room r: room) {
+			int i = 1;
+
+			for(GroupedRooms room: rooms) {
+				output.write(String.format("#--ROOM %d--#\n",i++));
+				output.write("#--Rectangles--#\n");
+				for(Room r: room.getRooms()) {
 					output.write(String.format(
-							"%d %d %d %d %d\n",
+							"%d %d %d %d\n",
 							(int) r.x,
 							(int) r.y,
 							(int) r.width,
-							(int) r.height,
-							(int) r.getId()));
+							(int) r.height));
 				}
+
+				output.write("#--Lights--#\n");
+				for(Light l: room.getLights()) {
+					output.write(String.format(
+							"%d %d %s %d\n",
+							(int) l.getX(),
+							(int) l.getY(),
+							Float.toString(l.getIntensity()),
+							(int)l.getType()));
+				}
+				output.write(String.format("\n"));
 			}
 
-			output.write("#--WALLS--#\n");
+			output.write(String.format("\n"));
+			output.write("##--WALLS--##\n");
 
-			for (int i = 0; i < walls.size(); i++)
-			{
-				Rectangle curr = walls.get(i);
+			for(Rectangle curr: walls) {
 				output.write(String.format(
 						"%d %d %d %d\n",
 						(int) curr.getX(),
@@ -478,11 +489,11 @@ public class Level
 						(int) curr.getHeight()));
 			}
 
-			output.write("#--TEXTURES--#\n");
+			output.write(String.format("\n"));
+			output.write(String.format("\n"));
+			output.write("##--TEXTURES--##\n");
 
-			for (int i = 0; i < positions.size(); i++)
-			{
-				Obj curr = positions.get(i);
+			for(Obj curr: positions) {
 				output.write(String.format("%d %d %d %d\n", curr.getT(), curr.getId(), (int) curr.getPos().X, (int) curr.getPos().Y));
 			}
 
@@ -514,9 +525,8 @@ public class Level
 		g.setColor(Color.red);
 		String[] m = new String[] { "Floor", "Wall", "Light", };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
-		if (mode == (Mode.Floor).i())
-			g.drawString("(Id: " + currentId + ")", rect.x + 10, rect.y + 65);
-		else if (mode == (Mode.Light).i())
+		g.drawString("(Id: " + currentId + ")", rect.x + 125, rect.y + 45);
+		if (mode == (Mode.Light).i())
 			g.drawString("(Intensity: " + currentIntensity + ")", rect.x + 10, rect.y + 65);
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);

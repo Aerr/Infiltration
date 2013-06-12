@@ -30,7 +30,6 @@ public class ObjectsHandler
 
 		lightEnabled = true;
 		lightManager = new LightManager(w, h, img_light);
-		lightManager.setLights(level.getLights());
 	}
 
 	public double random(double x, double y)
@@ -43,7 +42,7 @@ public class ObjectsHandler
 
 		level.render(g);
 
-		player.Render(gc, g, lightManager.getLights());
+		player.Render(gc, g, level.getCurrentLights(player.pos));
 
 		level.renderWalls(g);
 
@@ -58,8 +57,6 @@ public class ObjectsHandler
 		if (inEditor)
 		{
 			level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip);
-			if (lightEnabled)
-				lightManager.setLights(level.getLights());
 		}
 
 		player.HandleInput(ip, dt);

@@ -10,32 +10,19 @@ import org.newdawn.slick.opengl.renderer.SGL;
 
 public class LightManager
 {
-
-	private LinkedList<Light> lights;
 	private static final float ambient_lum = 0.05f;
 	private static final float ambient_dark = 0.01f;
-
-	public LinkedList<Light> getLights()
-	{
-		return lights;
-	}
-
-	public void setLights(LinkedList<Light> lights)
-	{
-		this.lights = lights;
-	}
 
 	private int resX;
 	private int resY;
 	private Image texture;
-	private LinkedList<Room> rooms;
-	private LinkedList<Room> old_rooms;
+	private GroupedRooms rooms;
+	private GroupedRooms old_rooms;
 	private Color color;
 	private Color old_color;
 
 	public LightManager(int w, int h, Image texture)
 	{
-		lights = new LinkedList<Light>();
 		this.resX = w;
 		this.resY = h;
 		this.texture = texture;
@@ -44,7 +31,7 @@ public class LightManager
 		old_color = Color.black;
 	}
 
-	public void render(Graphics g, LinkedList<Room> current_rooms)
+	public void render(Graphics g, GroupedRooms current_rooms)
 	{
 		// When room just changed
 		if (current_rooms != null && rooms != null && !rooms.equals(current_rooms))
@@ -66,44 +53,39 @@ public class LightManager
 		if (rooms != null)
 		{
 			// We draw each light's alphamap
-			for (int i = 0; i < lights.size(); i++)
+			for (Light l : rooms.getLights())
 			{
-				Light curr = lights.get(i);
-				for(Room room: rooms) {
-					if (curr.isSwitched_on() && room.contains((int) curr.getX(), (int) curr.getY()))
-					{
-						curr.setOn(true);
-						// We take it to the right scale
-						Image tmp = texture.getScaledCopy(curr.getIntensity());
-						// Top-Left corner of the image (where it should be drawn)
-						int srcX = (int) (curr.getX() - tmp.getWidth() / 2);
-						int srcY = (int) (curr.getY() - tmp.getHeight() / 2);
-						// We find whether it exceeds right/top limits of the room
-						int x = Math.max(0, room.x - srcX);
-						int y = Math.max(0, room.y - srcY);
-						// We adjust the width/height depending on previous result
-						// and so that it does not exceed the room's bottom/right limits
-						int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
-						int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
-						// We get the subimage depending on the value we previously found
-						tmp = tmp.getSubImage(x, y, w, h);
-						// We place it where it should be :
-						// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
-						// Else, simply at the starting point (srcX, srcY)
-						if (x != 0)
-							srcX = room.x;
-						if (y != 0)
-							srcY = room.y;
-						// We finally draw the mask
-						tmp.draw(srcX, srcY);
-					}
-					else
-						curr.setOn(false);
+				for (Room room : rooms.getRooms())
+				{
+					// We take it to the right scale
+					Image tmp = texture.getScaledCopy(l.getIntensity());
+					// Top-Left corner of the image (where it should be drawn)
+					int srcX = (int) (l.getX() - tmp.getWidth() / 2);
+					int srcY = (int) (l.getY() - tmp.getHeight() / 2);
+					// We find whether it exceeds right/top limits of the room
+					int x = Math.max(0, room.x - srcX);
+					int y = Math.max(0, room.y - srcY);
+					// We adjust the width/height depending on previous result
+					// and so that it does not exceed the room's bottom/right limits
+					int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
+					int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
+					// We get the subimage depending on the value we previously found
+					tmp = tmp.getSubImage(x, y, w, h);
+					// We place it where it should be :
+					// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
+					// Else, simply at the starting point (srcX, srcY)
+					if (x != 0)
+						srcX = room.x;
+					if (y != 0)
+						srcY = room.y;
+					// We finally draw the mask
+					tmp.draw(srcX, srcY);
 				}
 			}
 
 			// For transitions
-			for(Room room: rooms) {
+			for (Room room : rooms.getRooms())
+			{
 				g.setColor(color);
 				g.fillRect(room.x, room.y, room.width, room.height);
 				if (color.a != ambient_lum)
@@ -112,12 +94,13 @@ public class LightManager
 						color.a += 0.0003;
 					else if (color.a > ambient_lum)
 						color.a = ambient_lum;
-				}	
+				}
 			}
 		}
 		if (old_rooms != null)
 		{
-			for(Room room: old_rooms) {
+			for (Room room : old_rooms.getRooms())
+			{
 				g.setColor(old_color);
 				g.fillRect(room.x, room.y, room.width, room.height);
 
