@@ -42,12 +42,12 @@ public class ObjectsHandler
 
 		level.render(g);
 
-		player.Render(gc, g, level.getCurrentLights(player.pos));
+		player.Render(gc, g, level.getCurrentLights(player.getPos()));
 
 		level.renderWalls(g);
 
 		if (lightEnabled)
-			lightManager.render(g, level.getCurrentRoom(player.pos));
+			lightManager.render(g, level.getCurrentRoom(player.getPos()));
 	}
 
 	public void update(double dt, double x, double y, Input ip, Vector2 camPos) throws SlickException
@@ -87,6 +87,6 @@ public class ObjectsHandler
 	public void printInfos(Graphics g)
 	{
 		if (inEditor)
-			level.printInfo(g, player.pos);
+			level.printInfo(g, player.getPos());
 	}
 }

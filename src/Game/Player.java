@@ -47,7 +47,12 @@ public class Player
 	private Rectangle intersect;
 	public Vector2 pos;
 
-	public Vector2 GetPos()
+	public Vector2 getPos()
+	{
+		return (new Vector2(collision.getCenterX(), collision.getCenterY()));
+	}
+
+	public Vector2 drawPos()
 	{
 		return (new Vector2(pos.X - size * scale, pos.Y - size * scale));
 	}
@@ -212,60 +217,62 @@ public class Player
 	public void Update(LinkedList<Rectangle> rects)
 	{
 		if (move != Move.IdleStand && move != Move.IdleCrouch && move != Move.Punch)
+		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
 
-		collision.x = (int) (pos.X + signOf(speed.X) * size * 0.5f);
-		collision.y = (int) (pos.Y + signOf(speed.Y) * size * 0.5f);
+			collision.x = (int) (pos.X + signOf(speed.X) * size * 0.5f);
+			collision.y = (int) (pos.Y + signOf(speed.Y) * size * 0.5f);
 
-		boolean colliding = false;
-		for (int i = 0; i < rects.size(); i++)
-		{
-			if (collision.contains(rects.get(i)) || collision.intersects(rects.get(i)))
+			boolean colliding = false;
+			for (int i = 0; i < rects.size(); i++)
 			{
-				intersect = (Rectangle) collision.createIntersection(rects.get(i));
-				double w = intersect.getWidth();
-				double h = intersect.getHeight();
-				if (h < 9 || Math.min(h, w) == h)
+				if (collision.contains(rects.get(i)) || collision.intersects(rects.get(i)))
 				{
-					if (speed.Y > 0)
-						pos.Y -= h;
-					else if (speed.Y < 0)
-						pos.Y += h;
+					intersect = (Rectangle) collision.createIntersection(rects.get(i));
+					double w = intersect.getWidth();
+					double h = intersect.getHeight();
+					if (h < 9 || Math.min(h, w) == h)
+					{
+						if (speed.Y > 0)
+							pos.Y -= h;
+						else if (speed.Y < 0)
+							pos.Y += h;
+					}
+					else if (h < 20)
+					{
+						if (intersect.getY() + h > collision.getCenterY())
+							pos.Y -= h;
+						else
+							pos.Y += h;
+					}
+					if (w < 9 || Math.min(h, w) == w)
+					{
+						if (speed.X > 0)
+							pos.X -= w;
+						else if (speed.X < 0)
+							pos.X += w;
+					}
+					else if (w < 20)
+					{
+						if (intersect.getX() + w > collision.getCenterX())
+							pos.X -= w;
+						else
+							pos.X += w;
+					}
+					colliding = true;
+					break;
 				}
-				else if (h < 20)
-				{
-					if (intersect.getY() + h > collision.getCenterY())
-						pos.Y -= h;
-					else
-						pos.Y += h;
-				}
-				if (w < 9 || Math.min(h, w) == w)
-				{
-					if (speed.X > 0)
-						pos.X -= w;
-					else if (speed.X < 0)
-						pos.X += w;
-				}
-				else if (w < 20)
-				{
-					if (intersect.getX() + w > collision.getCenterX())
-						pos.X -= w;
-					else
-						pos.X += w;
-				}
-				colliding = true;
-				break;
 			}
-		}
 
-		Vector2 newVel = speed.GetMul(moveSpeed * 0.5);
-		stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
+			Vector2 newVel = speed.GetMul(moveSpeed * 0.5);
+			stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
 
-		// Movements
-		if (!colliding)
-		{
-			pos.X += (newVel.X);
-			pos.Y += (newVel.Y);
+			// Movements
+			if (!colliding)
+			{
+				pos.X += (newVel.X);
+				pos.Y += (newVel.Y);
+			}
 		}
 	}
 
@@ -288,14 +295,14 @@ public class Player
 		// Collisions' residues
 		if (intersect != null)
 			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+
+		//		g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG
 
 		// Shadow drawing
-//		Color startCol = new Color(0, 0, 0, 0.35f);
-		for (int i = 0; lights != null && i < lights.size(); i++)
+		for (Light curr: lights)
 		{
-			Color tmp = new Color(0, 0, 0, 0.35f);;
-			Light curr = lights.get(i);
+			Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
 			double d = pos.getDistance(new Vector2(curr.getX(),curr.getY()));
 			if (curr.isSwitched_on() && curr.isOn())
 			{
@@ -335,26 +342,26 @@ public class Player
 		}
 
 		g.pushTransform();
-		g.rotate((float) GetPos().X + GetSize() / 2, (float) GetPos().Y + GetSize() / 2, angle);
+		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)
 		{
 		case IdleStand:
-			stand_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
+			stand_idle.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		case Walk:
-			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
+			stand_walk.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		case IdleCrouch:
-			crouch_idle.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
+			crouch_idle.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		case Crouch:
-			crouch_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
+			crouch_walk.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		case Punch:
 			punch.draw((float)pos.X - 185 * scale, (float)pos.Y - 265 * scale, 500 * 0.75f, 529 * 0.75f);
 			break;
 		default:
-			stand_walk.draw((float) GetPos().X, (float) GetPos().Y, GetSize(), GetSize());
+			stand_walk.draw((float) drawPos().X, (float) drawPos().Y, GetSize(), GetSize());
 			break;
 		}
 		g.popTransform();

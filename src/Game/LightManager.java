@@ -10,8 +10,8 @@ import org.newdawn.slick.opengl.renderer.SGL;
 
 public class LightManager
 {
-	private static final float ambient_lum = 0.05f;
-	private static final float ambient_dark = 0.01f;
+	private static final float ambient_lum = 1f;
+	private static final float ambient_dark = 0.001f;
 
 	private int resX;
 	private int resY;
@@ -27,8 +27,8 @@ public class LightManager
 		this.resY = h;
 		this.texture = texture;
 
-		color = Color.black;
-		old_color = Color.black;
+		color = new Color(0, 0, 0, 0.00f);
+		old_color = new Color(0, 0, 0, ambient_lum);
 	}
 
 	public void render(Graphics g, GroupedRooms current_rooms)
@@ -36,8 +36,8 @@ public class LightManager
 		// When room just changed
 		if (current_rooms != null && rooms != null && !rooms.equals(current_rooms))
 		{
-			color = new Color(0, 0, 0, 0.00f);
-			old_color = new Color(0, 0, 0, ambient_lum);
+			color = new Color(0, 0, 0, ambient_lum / 85f);
+			old_color = new Color(0, 0, 0, 00f);
 			old_rooms = rooms;
 		}
 
@@ -79,22 +79,20 @@ public class LightManager
 					if (y != 0)
 						srcY = room.y;
 					// We finally draw the mask
-					tmp.draw(srcX, srcY);
+					tmp.draw(srcX, srcY, color);
+					
+					// For transitions
+					g.setColor(new Color(0,0,0, color.a / 85f));
+					g.fillRect(room.x, room.y, room.width, room.height);
 				}
 			}
 
-			// For transitions
-			for (Room room : rooms.getRooms())
+			if (color.a != ambient_lum)
 			{
-				g.setColor(color);
-				g.fillRect(room.x, room.y, room.width, room.height);
-				if (color.a != ambient_lum)
-				{
-					if (color.a < ambient_lum)
-						color.a += 0.0003;
-					else if (color.a > ambient_lum)
-						color.a = ambient_lum;
-				}
+				if (color.a < ambient_lum)
+					color.a += 0.0075;
+				else if (color.a > ambient_lum)
+					color.a = ambient_lum;
 			}
 		}
 		if (old_rooms != null)
@@ -103,11 +101,10 @@ public class LightManager
 			{
 				g.setColor(old_color);
 				g.fillRect(room.x, room.y, room.width, room.height);
-
-				if (old_color.a > 0)
-					old_color.a -= 0.0002;
 			}
 		}
+		if (old_color.a > 0)
+			old_color.a -= 0.0002;
 
 		g.resetTransform();
 		// We let a very reduced visibility of the neighbouring rooms

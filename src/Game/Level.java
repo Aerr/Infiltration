@@ -258,9 +258,8 @@ public class Level
 
 	public void render(Graphics g)
 	{
-		for (int i = 0; i < positions.size(); i++)
+		for (Obj curr: positions)
 		{
-			Obj curr = positions.get(i);
 			Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 			if (rect.contains(currRect) || rect.intersects(currRect))
 			{
@@ -303,9 +302,8 @@ public class Level
 		{
 			h += gridH[j];
 		}
-		for (int i = 0; i < positions.size(); i++)
+		for (Obj curr: positions)
 		{
-			Obj curr = positions.get(i);
 			if (curr.getT() == Mode.Wall.i())
 			{
 				Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);

@@ -14,6 +14,6 @@ public class Room
 	
 	public boolean contains(double posX, double posY)
 	{
-		return (posX >= x && posX <= (x + width) && posY >= y && posY <= (y + height));
+		return (posX >= (x - 1) && posX <= (x + width + 1) && posY >= (y - 1) && posY <= (y + height + 1));
 	}
 }
