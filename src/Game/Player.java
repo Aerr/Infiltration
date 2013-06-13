@@ -314,47 +314,50 @@ public class Player
 		// ---DEBUG
 
 		// Shadow drawing
-		for (Light curr : lights)
+		if (lights != null)
 		{
-			Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
-			double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
-			if (curr.isSwitched_on() && curr.isOn())
+			for (Light curr : lights)
 			{
-				Rect rect =
-						new Rect(
-								(int) pos.X + 32,
-								(int) pos.Y + 32,
-								(int) pos.X + 96,
-								(int) pos.Y + 32,
-								(int) pos.X + 32,
-								(int) pos.Y + 96,
-								(int) pos.X + 96,
-								(int) pos.Y + 96);
-				tmp.a -= d / 1500000f;
-
-				for (int j = 0; j < 4; j++)
+				Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
+				double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
+				if (curr.isSwitched_on() && curr.isOn())
 				{
-					Line l = rect.edges[j];
-					Polygon poly = new Polygon();
-					poly.addPoint(l.x0, l.y0);
-					poly.addPoint(l.x1, l.y1);
-					poly.addPoint(l.x1 - curr.getX() + l.x1, l.y1 - curr.getY() + l.y1);
-					poly.addPoint(l.x0 - curr.getX() + l.x0, l.y0 - curr.getY() + l.y0);
+					Rect rect =
+							new Rect(
+									(int) pos.X + 32,
+									(int) pos.Y + 32,
+									(int) pos.X + 96,
+									(int) pos.Y + 32,
+									(int) pos.X + 32,
+									(int) pos.Y + 96,
+									(int) pos.X + 96,
+									(int) pos.Y + 96);
+					tmp.a -= d / 1500000f;
 
-					ShapeFill fill =
-							new GradientFill(
-									(l.x0 + l.x1) / 2,
-									(l.y1 + l.y0) / 2,
-									tmp,
-									(l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
-									(l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
-									new Color(0, 0, 0, 0f));
+					for (int j = 0; j < 4; j++)
+					{
+						Line l = rect.edges[j];
+						Polygon poly = new Polygon();
+						poly.addPoint(l.x0, l.y0);
+						poly.addPoint(l.x1, l.y1);
+						poly.addPoint(l.x1 - curr.getX() + l.x1, l.y1 - curr.getY() + l.y1);
+						poly.addPoint(l.x0 - curr.getX() + l.x0, l.y0 - curr.getY() + l.y0);
 
-					g.fill(poly, fill);
+						ShapeFill fill =
+								new GradientFill(
+										(l.x0 + l.x1) / 2,
+										(l.y1 + l.y0) / 2,
+										tmp,
+										(l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
+										(l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
+										new Color(0, 0, 0, 0f));
+
+						g.fill(poly, fill);
+					}
 				}
 			}
 		}
-
+		
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)

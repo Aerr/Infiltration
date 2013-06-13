@@ -3,6 +3,7 @@ package Game;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 
+import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -43,12 +44,16 @@ public class ObjectsHandler
 
 	public void render(GameContainer gc, Graphics g, GameState state, float x, float y) throws SlickException
 	{
-
+		GL11.glDisable(GL11.GL_BLEND);
 		level.render(g);
+		GL11.glEnable(GL11.GL_BLEND);
 
 		player.Render(gc, g, level.getCurrentLights(player.getPos()));
 
-		level.renderWalls(g);
+		if (!inEditor)
+			GL11.glDisable(GL11.GL_BLEND);
+		level.renderOnTop(g);
+		GL11.glEnable(GL11.GL_BLEND);
 
 		if (lightEnabled)
 			lightManager.render(g);

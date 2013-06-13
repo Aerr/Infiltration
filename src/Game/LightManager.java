@@ -1,5 +1,7 @@
 package Game;
 
+import java.awt.Rectangle;
+
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
@@ -33,16 +35,6 @@ public class LightManager
 
 	public void update(double dt, GroupedRooms current_rooms)
 	{
-		// When room just changed
-		if (current_rooms != null && rooms != null && !rooms.equals(current_rooms))
-		{
-			color = new Color(0, 0, 0, 0f);
-			old_color = new Color(0, 0, 0, 1f);
-			old_rooms = rooms;
-			// We assign
-			rooms = current_rooms;
-		}
-
 		if (color.a != ambient_lum)
 		{
 			if (color.a < ambient_lum)
@@ -60,6 +52,16 @@ public class LightManager
 				old_color.a = 0f;
 			}
 		}
+
+		// When room just changed
+		if (current_rooms != null && rooms != null && !rooms.equals(current_rooms))
+		{
+			color = new Color(0, 0, 0, 0f);
+			old_color = new Color(0, 0, 0, 1f);
+			old_rooms = rooms;
+			// We assign
+			rooms = current_rooms;
+		}
 	}
 
 	public void render(Graphics g)
@@ -70,80 +72,9 @@ public class LightManager
 		GL11.glEnable(SGL.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
 
-		if (rooms != null)
-		{
-			// We draw each light's alphamap
-			for (Light l : rooms.getLights())
-			{
-				for (Room room : rooms.getRooms())
-				{
-					// We take it to the right scale
-					Image tmp = texture.getScaledCopy(l.getIntensity());
-					// Top-Left corner of the image (where it should be drawn)
-					int srcX = (int) (l.getX() - tmp.getWidth() / 2);
-					int srcY = (int) (l.getY() - tmp.getHeight() / 2);
-					// We find whether it exceeds right/top limits of the room
-					int x = Math.max(0, room.x - srcX);
-					int y = Math.max(0, room.y - srcY);
-					// We adjust the width/height depending on previous result
-					// and so that it does not exceed the room's bottom/right limits
-					int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
-					int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
-					// We get the subimage depending on the value we previously found
-					tmp = tmp.getSubImage(x, y, w, h);
-					// We place it where it should be :
-					// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
-					// Else, simply at the starting point (srcX, srcY)
-					if (x != 0)
-						srcX = room.x;
-					if (y != 0)
-						srcY = room.y;
-					// We finally draw the mask
-					tmp.draw(srcX, srcY, color);
-
-					// For transitions
-					g.setColor(new Color(0, 0, 0, color.a / 85f));
-					g.fillRect(room.x, room.y, room.width, room.height);
-				}
-			}
-		}
-
-		if (old_rooms != null)
-		{ // We draw each light's alphamap
-			for (Light l : old_rooms.getLights())
-			{
-				for (Room room : old_rooms.getRooms())
-				{
-					// We take it to the right scale
-					Image tmp = texture.getScaledCopy(l.getIntensity());
-					// Top-Left corner of the image (where it should be drawn)
-					int srcX = (int) (l.getX() - tmp.getWidth() / 2);
-					int srcY = (int) (l.getY() - tmp.getHeight() / 2);
-					// We find whether it exceeds right/top limits of the room
-					int x = Math.max(0, room.x - srcX);
-					int y = Math.max(0, room.y - srcY);
-					// We adjust the width/height depending on previous result
-					// and so that it does not exceed the room's bottom/right limits
-					int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
-					int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
-					// We get the subimage depending on the value we previously found
-					tmp = tmp.getSubImage(x, y, w, h);
-					// We place it where it should be :
-					// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
-					// Else, simply at the starting point (srcX, srcY)
-					if (x != 0)
-						srcX = room.x;
-					if (y != 0)
-						srcY = room.y;
-					// We finally draw the mask
-					tmp.draw(srcX, srcY, old_color);
-
-					// For transitions
-					g.setColor(new Color(0, 0, 0, old_color.a / 85f));
-					g.fillRect(room.x, room.y, room.width, room.height);
-				}
-			}
-		}
+		drawLights(g, rooms, color);
+		
+		drawLights(g, old_rooms, old_color);
 
 		g.resetTransform();
 		// We let a very reduced visibility of the neighbouring rooms
@@ -158,4 +89,58 @@ public class LightManager
 		g.setColor(Color.black);
 		g.fillRect(0, 0, resX, resY);
 	}
+	
+
+private void drawLights(Graphics g, GroupedRooms gp, Color c)
+{
+	if (gp != null)
+	{
+		// We draw each light's alphamap
+		boolean first = true;
+		for (Light l : gp.getLights())
+		{
+			for (Room room : gp.getRooms())
+			{
+				Image tmp = texture.getScaledCopy(l.getIntensity());
+				// We take it to the right scale
+				// Top-Left corner of the image (where it should be drawn)
+				int srcX = (int) (l.getX() - tmp.getWidth() / 2);
+				int srcY = (int) (l.getY() - tmp.getHeight() / 2);
+				Rectangle r1 = new Rectangle (room.x, room.y, room.width, room.height);
+				Rectangle r2 = new Rectangle(srcX, srcY, tmp.getWidth(), tmp.getHeight());
+				
+				if (r1.contains(r2) || r1.intersects(r2))
+				{
+					// We find whether it exceeds right/top limits of the room
+					int x = Math.max(0, room.x - srcX);
+					int y = Math.max(0, room.y - srcY);
+					// We adjust the width/height depending on previous result
+					// and so that it does not exceed the room's bottom/right limits
+					int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
+					int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
+					// We get the subimage depending on the value we previously found
+					tmp = tmp.getSubImage(x, y, w, h);
+					// We place it where it should be :
+					// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
+					// Else, simply at the starting point (srcX, srcY)
+					if (x != 0)
+						srcX = room.x;
+					if (y != 0)
+						srcY = room.y;
+					// We finally draw the mask
+					tmp.draw(srcX, srcY, c);
+				}
+
+				if (first)
+				{
+					// For transitions
+					g.setColor(new Color(0, 0, 0, c.a / 25f));
+					g.fillRect(room.x, room.y, room.width, room.height);
+				}
+			}
+			first = false;
+		}
+	}
 }
+}
+

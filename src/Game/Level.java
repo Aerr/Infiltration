@@ -34,6 +34,7 @@ public class Level
 		}
 	}
 
+	// /** Variables
 	private LinkedList<Obj> positions;
 	private LinkedList<GroupedRooms> rooms;
 
@@ -83,6 +84,24 @@ public class Level
 		}
 		return null;
 	}
+	
+	public int getCurrentID(Vector2 pos)
+	{
+		int i = 0;
+		for (GroupedRooms room : rooms)
+		{
+			for (Room r : room.getRooms())
+			{
+				if (r.contains(pos.X, pos.Y))
+				{
+					currentId = i;
+					return i;
+				}
+			}
+			i++;
+		}
+		return -999;
+	}
 
 	public LinkedList<Light> getCurrentLights(Vector2 pos)
 	{
@@ -98,6 +117,8 @@ public class Level
 		}
 		return null;
 	}
+
+	// **/
 
 	public Level(Image wall)
 	{
@@ -230,7 +251,10 @@ public class Level
 				for (Rectangle w : walls)
 				{
 					if (w.contains(mouse.X, mouse.Y, 30, 30) || w.intersects(mouse.X, mouse.Y, 30, 30))
+					{
 						walls.remove(w);
+						break;
+					}
 				}
 			}
 			else if (mode == Mode.Floor.i())
@@ -250,35 +274,32 @@ public class Level
 			}
 		}
 		else if (ip.isKeyPressed(Input.KEY_NEXT))
-		{
-			if (mode == (Mode.Floor).i())
 				currentId++;
-			else if (mode == (Mode.Light).i())
-				currentIntensity += 0.2f;
-		}
 		else if (ip.isKeyPressed(Input.KEY_PRIOR))
-		{
-			if (mode == (Mode.Floor).i())
 				currentId--;
-			else if (mode == (Mode.Light).i() && currentIntensity > 0.2f)
-				currentIntensity -= 0.2f;
-		}
+		else if (ip.isKeyPressed(Input.KEY_ADD))
+			currentIntensity += 0.2f;
+		else if (ip.isKeyPressed(Input.KEY_SUBTRACT) && currentIntensity > 0.5f)
+			currentIntensity -= 0.2f;
 	}
 
 	public void render(Graphics g)
 	{
 		for (Obj curr : positions)
 		{
-			Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
-			if (rect.contains(currRect) || rect.intersects(currRect))
+			if (curr.getT() != Mode.Wall.i())
 			{
-				int h = 0;
-				for (int j = 0; j < curr.getT(); j++)
+				Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
+				if (rect.contains(currRect) || rect.intersects(currRect))
 				{
-					h += gridH[j];
+					int h = 0;
+					for (int j = 0; j < curr.getT(); j++)
+					{
+						h += gridH[j];
+					}
+					Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
+					g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
 				}
-				Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
-				g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
 			}
 		}
 
@@ -304,25 +325,19 @@ public class Level
 		}
 	}
 
-	public void renderWalls(Graphics g)
+	public void renderOnTop(Graphics g)
 	{
-		int h = 0;
-		for (int j = 0; j < (Mode.Wall).i(); j++)
-		{
-			h += gridH[j];
-		}
+		g.setColor(Color.black);
 		for (Obj curr : positions)
 		{
 			if (curr.getT() == Mode.Wall.i())
 			{
 				Rectangle currRect = new Rectangle((int) curr.getPos().X, (int) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 				if (rect.contains(currRect) || rect.intersects(currRect))
-				{
-					Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
-					g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
-				}
+					g.fillRect((float) curr.getPos().X, (float) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 			}
 		}
+		
 		if (inEditor)
 		{
 			if (mode == Mode.Wall.i())
@@ -536,6 +551,6 @@ public class Level
 			g.drawString("(Intensity: " + currentIntensity + ")", rect.x + 10, rect.y + 65);
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
+		g.drawString(String.format("Current room's ID: %d", getCurrentID(playerPos)), rect.x + 10, rect.y + 115);
 	}
-	// **/
 }
