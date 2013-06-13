@@ -17,6 +17,7 @@ public class ObjectsHandler
 {
 	private LinkedList<Rectangle> rects;
 	private Player player;
+	private Ennemy ennemy;
 	public int scale;
 	private Level level;
 	private LightManager lightManager;
@@ -28,7 +29,8 @@ public class ObjectsHandler
 	{
 		this.rects = new LinkedList<Rectangle>();
 
-		player = new Player(w, h, img_perso, img_fight);
+		player = new Player(img_perso, img_fight);
+		ennemy = new Ennemy(img_perso);
 
 		level = new Level(img_wall);
 		this.rects = level.Load("level.cfg");
@@ -49,6 +51,7 @@ public class ObjectsHandler
 		GL11.glEnable(GL11.GL_BLEND);
 
 		player.Render(gc, g, level.getCurrentLights(player.getPos()));
+		ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
 
 		if (!inEditor)
 			GL11.glDisable(GL11.GL_BLEND);
@@ -68,6 +71,9 @@ public class ObjectsHandler
 
 		player.HandleInput(ip, dt);
 		player.Update(rects);
+		
+		ennemy.HandleMoves(dt, player.drawPos());
+		ennemy.Update(rects, player.getCollision());
 
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;
