@@ -115,6 +115,10 @@ public class Main extends BasicGame
 		{
 			System.exit(0);
 		}
+		
+		// Flushes old unused datas
+		ip.clearKeyPressedRecord();
+		ip.clearMousePressedRecord();
 	}
 
 	@Override

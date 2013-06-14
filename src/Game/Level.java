@@ -20,7 +20,7 @@ public class Level
 {
 	private enum Mode
 	{
-		Floor(0), Wall(1), Light(2), End(3);
+		Floor(0), Wall(1), Light(2), AI(3), End(4);
 		private int id;
 
 		private Mode(int i)
@@ -35,6 +35,19 @@ public class Level
 	}
 
 	// /** Variables
+	private Waypoint currWaypoint;
+	private LinkedList<Waypoint> waypoints;
+
+	public void setWaypoints(LinkedList<Waypoint> waypoints)
+	{
+		this.waypoints = waypoints;
+	}
+
+	public LinkedList<Waypoint> getWaypoints()
+	{
+		return waypoints;
+	}
+
 	private LinkedList<Obj> positions;
 	private LinkedList<GroupedRooms> rooms;
 
@@ -48,8 +61,8 @@ public class Level
 	LinkedList<Rectangle> walls;
 	private Rectangle rect;
 
-	private static final int[] gridW = new int[] { 268, 67, 1920, };
-	private static final int[] gridH = new int[] { 178, 67, 1080, };
+	private static final int[] gridW = new int[] { 268, 67, 1920, 67 };
+	private static final int[] gridH = new int[] { 178, 67, 1080, 67 };
 
 	private boolean inEditor;
 	private int mode;
@@ -84,7 +97,7 @@ public class Level
 		}
 		return null;
 	}
-	
+
 	public int getCurrentID(Vector2 pos)
 	{
 		int i = 0;
@@ -144,6 +157,8 @@ public class Level
 
 		currentId = 0;
 		currentIntensity = 1;
+
+		waypoints = new LinkedList<Waypoint>();
 	}
 
 	public void Update(Vector2 pos)
@@ -158,7 +173,56 @@ public class Level
 		// Clicking : Placing Elements
 		if (ip.isMouseButtonDown(0) || ip.isMouseButtonDown(1))
 		{
-			if (mode == Mode.Light.i())
+			if (mode == Mode.AI.i())
+			{
+				if (ip.isMousePressed(0))
+				{
+					if (ip.isKeyDown(Input.KEY_LCONTROL))
+					{
+						int i = 0;
+						for (Waypoint w : waypoints)
+						{
+							if (mouse.getDistance(new Vector2(w.getX(), w.getY())) < 300)
+							{
+								if (currWaypoint == null)
+								{
+									currWaypoint = w;
+									currWaypoint.setID(i);
+								}
+								else
+								{
+									if (i != currWaypoint.getID())
+									{
+										currWaypoint.addLink(i);
+										w.addLink(currWaypoint.getID());
+									}
+									currWaypoint = null;
+								}
+								break;
+							}
+							i++;
+						}
+					}
+					else if (currWaypoint == null)
+						waypoints.add(new Waypoint(mouse.X, mouse.Y));
+				}
+				else if (ip.isMouseButtonDown(1))
+				{
+					int i = 0;
+					for (Waypoint w : waypoints)
+					{
+						if (mouse.getDistance(new Vector2(w.getX(), w.getY())) < 300)
+						{	
+							waypoints.remove(w);
+							break;
+						}
+						i++;
+					}
+					for (Waypoint w : waypoints)
+						w.removeLink(i);
+				}
+			}
+			else if (mode == Mode.Light.i())
 			{
 				if (ip.isMousePressed(0))
 				{
@@ -168,7 +232,6 @@ public class Level
 				}
 				else if (ip.isMouseButtonDown(1))
 				{
-
 					for (GroupedRooms room : rooms)
 					{
 						for (Light l : room.getLights())
@@ -190,11 +253,11 @@ public class Level
 				else
 				{
 					Clean_List();
-					for (int i = 0; i < positions.size(); i++)
+					for (Obj o: positions)
 					{
-						if (positions.get(i).getPos().Equals(new Vector2(mouse.X, mouse.Y)))
+						if (o.getPos().Equals(new Vector2(mouse.X, mouse.Y)))
 						{
-							positions.remove(i);
+							positions.remove(o);
 							break;
 						}
 					}
@@ -274,9 +337,9 @@ public class Level
 			}
 		}
 		else if (ip.isKeyPressed(Input.KEY_NEXT))
-				currentId++;
+			currentId++;
 		else if (ip.isKeyPressed(Input.KEY_PRIOR))
-				currentId--;
+			currentId--;
 		else if (ip.isKeyPressed(Input.KEY_ADD))
 			currentIntensity += 0.2f;
 		else if (ip.isKeyPressed(Input.KEY_SUBTRACT) && currentIntensity > 0.5f)
@@ -337,7 +400,7 @@ public class Level
 					g.fillRect((float) curr.getPos().X, (float) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 			}
 		}
-		
+
 		if (inEditor)
 		{
 			if (mode == Mode.Wall.i())
@@ -370,6 +433,23 @@ public class Level
 					{
 						// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
 						g.fillOval(l.getX() - 15, l.getY() - 15, 30, 30);
+					}
+				}
+			}
+			else if (mode == Mode.AI.i())
+			{
+				if (currWaypoint != null)
+				{
+					g.drawLine(currWaypoint.getX(), currWaypoint.getY(), (float)mouse.X, (float)mouse.Y);
+				}
+				for (Waypoint w : waypoints)
+				{
+					g.setColor(Color.blue);
+					g.fillOval(w.getX() - 30, w.getY() - 30, 60, 60);
+					for (Integer i : w.getLinks())
+					{
+						Waypoint tmp = waypoints.get(i);
+						g.drawLine(w.getX(), w.getY(), tmp.getX(), tmp.getY());
 					}
 				}
 			}
@@ -466,6 +546,7 @@ public class Level
 
 	public void Save_Level()
 	{
+		Save_Waypoints();
 		Clean_List();
 		try
 		{
@@ -528,6 +609,32 @@ public class Level
 		}
 	}
 
+	public void Save_Waypoints()
+	{
+		try
+		{
+			FileWriter fw = new FileWriter(System.getProperty("user.dir") + "/" + "level_waypoints.cfg", false);
+			BufferedWriter output = new BufferedWriter(fw);
+
+			for (Waypoint curr : waypoints)
+			{
+				output.write(String.format("\n"));
+				output.write(String.format("%d %d\n", (int) curr.getX(), (int) curr.getY()));
+
+				for (Integer i : curr.getLinks())
+					output.write(String.format("%d ", (int) i));
+			}
+
+			output.flush();
+			output.close();
+		}
+		catch (IOException ioe)
+		{
+			System.out.print("Erreur : ");
+			ioe.printStackTrace();
+		}
+	}
+
 	private void Clean_List()
 	{
 		for (int i = 0; i < positions.size(); i++)
@@ -544,7 +651,7 @@ public class Level
 	public void printInfo(Graphics g, Vector2 playerPos)
 	{
 		g.setColor(Color.red);
-		String[] m = new String[] { "Floor", "Wall", "Light", };
+		String[] m = new String[] { "Floor", "Wall", "Light", "AI" };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
 		g.drawString("(Id: " + currentId + ")", rect.x + 125, rect.y + 45);
 		if (mode == (Mode.Light).i())

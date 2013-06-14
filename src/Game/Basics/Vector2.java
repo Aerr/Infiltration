@@ -107,4 +107,12 @@ public class Vector2
 		// We'd rather square the other side of the (in)equation
 		return (dX + dY);
 	}
+	public double getDistance(double vX, double vY)
+	{
+		double dX = Math.pow((X - vX), 2);
+		double dY = Math.pow((Y - vY), 2);
+		// We don't root square because it's a very slow operation
+		// We'd rather square the other side of the (in)equation
+		return (dX + dY);
+	}
 }

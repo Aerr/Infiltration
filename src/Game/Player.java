@@ -310,10 +310,10 @@ public class Player
 
 		// DEBUG
 		// Collisions' dummy
-		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
-		// Collisions' residues
-		if (intersect != null)
-			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+//		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+//		// Collisions' residues
+//		if (intersect != null)
+//			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG

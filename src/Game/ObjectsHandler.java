@@ -24,6 +24,7 @@ public class ObjectsHandler
 	private boolean lightEnabled;
 
 	private boolean inEditor;
+	private WaypointManager waypoints;
 
 	public ObjectsHandler(int w, int h, Image img_perso, Image img_floor, Image img_wall, Image img_light, Image img_fight)
 	{
@@ -34,6 +35,7 @@ public class ObjectsHandler
 
 		level = new Level(img_wall);
 		this.rects = level.Load("level.cfg");
+		waypoints = new WaypointManager("level_waypoints.cfg");
 
 		lightEnabled = true;
 		lightManager = new LightManager(w, h, img_light, level.getCurrentRoom(player.getPos()));
@@ -56,23 +58,26 @@ public class ObjectsHandler
 		if (!inEditor)
 			GL11.glDisable(GL11.GL_BLEND);
 		level.renderOnTop(g);
+		
 		GL11.glEnable(GL11.GL_BLEND);
 
 		if (lightEnabled)
 			lightManager.render(g);
 	}
 
-	public void update(double dt, double x, double y, Input ip, Vector2 camPos) throws SlickException
+	public void update(double dt, int x, int y, Input ip, Vector2 camPos) throws SlickException
 	{
 
 		level.Update(camPos);
 		if (inEditor)
+		{
 			level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip);
+		}
 
 		player.HandleInput(ip, dt);
 		player.Update(rects);
 		
-		ennemy.HandleMoves(dt, player.drawPos());
+//		ennemy.HandleMoves(dt, player.getPos(), level.getWaypoints());
 		ennemy.Update(rects, player.getCollision());
 
 		if (ip.isKeyPressed(Input.KEY_I))
@@ -96,6 +101,9 @@ public class ObjectsHandler
 	{
 		if (inEditor)
 			level.Save_Level();
+		else
+			level.setWaypoints(waypoints.getWaypoints());
+		
 		inEditor = b;
 		level.setInEditor(b);
 	}

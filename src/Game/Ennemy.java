@@ -44,6 +44,8 @@ public class Ennemy
 	private Vector2 old_sign;
 
 	private Vector2 direction;
+	private Rectangle start;
+	private Rectangle dest;
 
 	public Vector2 getPos()
 	{
@@ -77,52 +79,81 @@ public class Ennemy
 		direction = Vector2.Zero();
 	}
 
-	public void HandleMoves(double dt, Vector2 playerPos)
+	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Rectangle> walkPath)
 	{
-		direction = (new Vector2(playerPos.X - pos.X, -(playerPos.Y - pos.Y)));
-		if (!direction.isZero())
+		start = walkPath.get(0);
+		dest = start;
+		double minDistStart = pos.getDistance(start.getCenterX(), start.getCenterY());
+		double minDistDest = minDistStart;
+		for (Rectangle r : walkPath)
+		{
+			double tmp = pos.getDistance(r.getCenterX(), r.getCenterY());
+			if (tmp < minDistStart)
+			{
+				start = r;
+				minDistStart = tmp;
+			}
+			tmp = playerPos.getDistance(r.getCenterX(), r.getCenterY());
+			if (tmp < minDistDest)
+			{
+				dest = r;
+				minDistDest = tmp;
+			}
+		}
+
+		if (start.equals(dest))
+		{
+			direction = Vector2.Zero();
+			move = Move.IdleStand;
+		}
+		else
 		{
 			move = Move.Walk;
-			if (direction.Y > 0f && speed.Y > -1)
-			{
-				speed.Y -= dt * 2;
-				if (speed.Y < -1)
-					speed.Y = -1;
-			}
-			else if (speed.Y < 0)
-				speed.Y += dt * 4;
-
-			if (direction.Y < 0f && speed.Y < 1)
-			{
-				speed.Y += dt * 2;
-
-				if (speed.Y > 1)
-					speed.Y = 1;
-			}
-			else if (speed.Y > 0)
-				speed.Y -= dt * 4;
-
-			if (direction.X > 0f && speed.X < 1)
-			{
-				speed.X += dt * 2;
-
-				if (speed.X > 1)
-					speed.X = 1;
-			}
-			else if (speed.X > 0)
-				speed.X -= dt * 4;
-			if (direction.X < 0f && speed.X > -1)
-			{
-				speed.X -= dt * 2;
-
-				if (speed.X < -1)
-					speed.X = -1;
-			}
-			else if (speed.X < 0)
-				speed.X += dt * 4;
 		}
-	}
+		//
+		// if (!direction.isZero())
+		// {
+		// move = Move.Walk;
+		// if (direction.Y > 0f && speed.Y > -1)
+		// {
+		// speed.Y -= dt * 2;
+		// if (speed.Y < -1)
+		// speed.Y = -1;
+		// }
+		// else if (speed.Y < 0)
+		// speed.Y += dt * 4;
+		//
+		// if (direction.Y < 0f && speed.Y < 1)
+		// {
+		// speed.Y += dt * 2;
+		//
+		// if (speed.Y > 1)
+		// speed.Y = 1;
+		// }
+		// else if (speed.Y > 0)
+		// speed.Y -= dt * 4;
+		//
+		// if (direction.X > 0f && speed.X < 1)
+		// {
+		// speed.X += dt * 2;
+		//
+		// if (speed.X > 1)
+		// speed.X = 1;
+		// }
+		// else if (speed.X > 0)
+		// speed.X -= dt * 4;
+		// if (direction.X < 0f && speed.X > -1)
+		// {
+		// speed.X -= dt * 2;
+		//
+		// if (speed.X < -1)
+		// speed.X = -1;
+		// }
+		// else if (speed.X < 0)
+		// speed.X += dt * 4;
+		// }
 
+	}
 
 	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect)
 	{
@@ -146,21 +177,38 @@ public class Ennemy
 			old_sign = sign;
 
 			boolean colliding = false;
-			colliding = getColliding(playerRect);
+			if (!(colliding = getColliding(playerRect)))
 			{
 				for (Rectangle r : rects)
 				{
 					colliding = getColliding(r);
 					if (colliding)
-						break;
+					{
+						if (pos.Y >= r.y && pos.Y <= r.y + r.height + 300)
+						{
+							if (pos.Y <= r.y + r.height)
+								speed = new Vector2(0, 1);
+							else
+								speed = new Vector2(0, Math.signum(playerRect.getCenterY() - pos.Y));
+						}
+						else if (pos.X >= r.x && pos.X <= r.x + r.width + 300)
+						{
+
+							if (pos.X <= r.x + r.width)
+								speed = new Vector2(1, 0);
+							else
+								speed = new Vector2(Math.signum(playerRect.getCenterX() - pos.X), 0);
+						}
+					}
 				}
 			}
-			
+
 			Vector2 newVel = speed.GetMul(moveSpeed * 0.5);
+
 			stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
 
 			// Movements
-			if (!colliding)
+			// if (!colliding)
 			{
 				pos.X += (newVel.X);
 				pos.Y += (newVel.Y);
@@ -183,10 +231,10 @@ public class Ennemy
 
 		// DEBUG
 		// Collisions' dummy
-		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
-		// Collisions' residues
-		if (intersect != null)
-			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		// g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+		// // Collisions' residues
+		// if (intersect != null)
+		// g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG
@@ -236,6 +284,12 @@ public class Ennemy
 			}
 		}
 
+		// g.drawString("Coucou", (float) drawPos().X, (float) drawPos().Y);
+		if (start != null && dest != null)
+		{
+			g.fillRect(start.x, start.y, start.width, start.height);
+			g.fillRect(dest.x, dest.y, dest.width, dest.height);
+		}
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)
@@ -252,7 +306,7 @@ public class Ennemy
 		}
 		g.popTransform();
 	}
-	
+
 	private boolean getColliding(Rectangle r)
 	{
 		if (collision.contains(r) || collision.intersects(r))
