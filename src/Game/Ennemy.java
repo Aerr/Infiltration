@@ -44,8 +44,9 @@ public class Ennemy
 	private Vector2 old_sign;
 
 	private Vector2 direction;
-	private Rectangle start;
-	private Rectangle dest;
+	private Waypoint dir;
+	private boolean onPath;
+	private Waypoint start;
 
 	public Vector2 getPos()
 	{
@@ -64,13 +65,13 @@ public class Ennemy
 
 	public Ennemy(Image moves)
 	{
-		this.pos = new Vector2(750, 850);
+		this.pos = new Vector2(750, 650);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
 		moveSpeed = normalSpeed;
 		SpriteSheet spritesheet = new SpriteSheet(moves, bounds, bounds);
 
-		collision = new Rectangle((int) pos.X, (int) pos.Y, (int) (size * 1.5f), (int) (size * 1.5f));
+		collision = new Rectangle((int) pos.X, (int) pos.Y, (int) (size * 1.15f), (int) (size * 1.15f));
 
 		stand_idle = new Animation(spritesheet, 0, 0, 13, 0, true, 100, true);
 		stand_walk = new Animation(spritesheet, 0, 1, 13, 1, true, 100, true);
@@ -79,79 +80,84 @@ public class Ennemy
 		direction = Vector2.Zero();
 	}
 
-	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Rectangle> walkPath)
-	{
-		start = walkPath.get(0);
-		dest = start;
-		double minDistStart = pos.getDistance(start.getCenterX(), start.getCenterY());
-		double minDistDest = minDistStart;
-		for (Rectangle r : walkPath)
+	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Waypoint> closests)
+	{		
+		if (closests != null)
 		{
-			double tmp = pos.getDistance(r.getCenterX(), r.getCenterY());
-			if (tmp < minDistStart)
+			if (start != closests.get(0))
 			{
-				start = r;
-				minDistStart = tmp;
+				start = closests.get(0);
+				onPath = false;
 			}
-			tmp = playerPos.getDistance(r.getCenterX(), r.getCenterY());
-			if (tmp < minDistDest)
+			closests.remove(0);
+			if (pos.getDistance(new Vector2(start.getX(), start.getY())) > 100 && !onPath)
+				direction = new Vector2(start.getX() - pos.X, pos.Y - start.getY());
+			else
 			{
-				dest = r;
-				minDistDest = tmp;
+				onPath = true;
+				Waypoint dest = closests.get(0);
+				double min = playerPos.getDistance(new Vector2(dest.getX(), dest.getY()));
+				closests.remove(0);			
+				for (Waypoint w : closests)
+				{
+					double tmp = playerPos.getDistance(new Vector2(w.getX(), w.getY()));
+					if (tmp < min)
+					{
+						dest = w;
+						min = tmp;
+					}
+				}
+				direction = new Vector2(dest.getX() - pos.X, pos.Y - dest.getY());
 			}
 		}
-
-		if (start.equals(dest))
-		{
+		else
 			direction = Vector2.Zero();
-			move = Move.IdleStand;
+
+		if (!direction.isZero())
+		{
+			move = Move.Walk;
+			if (direction.Y > 0f && speed.Y > -1)
+			{
+				speed.Y -= dt * 2;
+				if (speed.Y < -1)
+					speed.Y = -1;
+			}
+			else if (speed.Y < 0)
+				speed.Y += dt * 4;
+
+			if (direction.Y < 0f && speed.Y < 1)
+			{
+				speed.Y += dt * 2;
+
+				if (speed.Y > 1)
+					speed.Y = 1;
+			}
+			else if (speed.Y > 0)
+				speed.Y -= dt * 4;
+
+			if (direction.X > 0f && speed.X < 1)
+			{
+				speed.X += dt * 2;
+
+				if (speed.X > 1)
+					speed.X = 1;
+			}
+			else if (speed.X > 0)
+				speed.X -= dt * 4;
+			if (direction.X < 0f && speed.X > -1)
+			{
+				speed.X -= dt * 2;
+
+				if (speed.X < -1)
+					speed.X = -1;
+			}
+			else if (speed.X < 0)
+				speed.X += dt * 4;
 		}
 		else
 		{
-			move = Move.Walk;
+			move = Move.IdleStand;
 		}
-		//
-		// if (!direction.isZero())
-		// {
-		// move = Move.Walk;
-		// if (direction.Y > 0f && speed.Y > -1)
-		// {
-		// speed.Y -= dt * 2;
-		// if (speed.Y < -1)
-		// speed.Y = -1;
-		// }
-		// else if (speed.Y < 0)
-		// speed.Y += dt * 4;
-		//
-		// if (direction.Y < 0f && speed.Y < 1)
-		// {
-		// speed.Y += dt * 2;
-		//
-		// if (speed.Y > 1)
-		// speed.Y = 1;
-		// }
-		// else if (speed.Y > 0)
-		// speed.Y -= dt * 4;
-		//
-		// if (direction.X > 0f && speed.X < 1)
-		// {
-		// speed.X += dt * 2;
-		//
-		// if (speed.X > 1)
-		// speed.X = 1;
-		// }
-		// else if (speed.X > 0)
-		// speed.X -= dt * 4;
-		// if (direction.X < 0f && speed.X > -1)
-		// {
-		// speed.X -= dt * 2;
-		//
-		// if (speed.X < -1)
-		// speed.X = -1;
-		// }
-		// else if (speed.X < 0)
-		// speed.X += dt * 4;
-		// }
 
 	}
 
@@ -231,10 +237,10 @@ public class Ennemy
 
 		// DEBUG
 		// Collisions' dummy
-		// g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
 		// // Collisions' residues
-		// if (intersect != null)
-		// g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		//		 if (intersect != null)
+		//		 g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG
@@ -285,11 +291,11 @@ public class Ennemy
 		}
 
 		// g.drawString("Coucou", (float) drawPos().X, (float) drawPos().Y);
-		if (start != null && dest != null)
-		{
-			g.fillRect(start.x, start.y, start.width, start.height);
-			g.fillRect(dest.x, dest.y, dest.width, dest.height);
-		}
+		//		if (start != null && dest != null)
+		//		{
+		//			g.fillRect(start.x, start.y, start.width, start.height);
+		//			g.fillRect(dest.x, dest.y, dest.width, dest.height);
+		//		}
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)
@@ -314,28 +320,28 @@ public class Ennemy
 			intersect = (Rectangle) collision.createIntersection(r);
 			double w = intersect.getWidth();
 			double h = intersect.getHeight();
-			if (h < 9 || Math.min(h, w) == h)
+			if (h < 12 || Math.min(h, w) == h)
 			{
 				if (speed.Y > 0)
-					pos.Y -= h;
+					pos.Y -= h + 1;
 				else if (speed.Y < 0)
-					pos.Y += h;
+					pos.Y += h + 1;
 			}
-			else if (h < 20)
+			else if (h < 50)
 			{
 				if (intersect.getY() + h > collision.getCenterY())
 					pos.Y -= h;
 				else
 					pos.Y += h;
 			}
-			if (w < 9 || Math.min(h, w) == w)
+			if (w < 12 || Math.min(h, w) == w)
 			{
 				if (speed.X > 0)
-					pos.X -= w;
+					pos.X -= w + 1;
 				else if (speed.X < 0)
-					pos.X += w;
+					pos.X += w + 1;
 			}
-			else if (w < 20)
+			else if (w < 50)
 			{
 				if (intersect.getX() + w > collision.getCenterX())
 					pos.X -= w;
