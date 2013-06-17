@@ -10,6 +10,16 @@ public class Vector2
 
 	public double X, Y;
 
+	public int getX()
+	{
+		return (int)X;
+	}
+
+	public int getY()
+	{
+		return (int)Y;
+	}
+
 	public Vector2(double x, double y)
 	{
 		this.X = x;

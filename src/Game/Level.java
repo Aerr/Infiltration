@@ -51,6 +51,11 @@ public class Level
 	private LinkedList<Obj> positions;
 	private LinkedList<GroupedRooms> rooms;
 
+	public LinkedList<GroupedRooms> getAllRooms()
+	{
+		return rooms;
+	}
+
 	public LinkedList<Obj> getPositions()
 	{
 		return positions;
@@ -300,7 +305,11 @@ public class Level
 						while (currentId > rooms.size() - 1)
 							rooms.add(new GroupedRooms());
 						rooms.get(currentId).addRoom(
-								new Room((int) temp.X, (int) temp.Y, (int) Math.abs(mouse.X - temp.X), (int) Math.abs(mouse.Y - temp.Y)));
+								new Room(
+										(int) Math.min(temp.X, mouse.X),
+										(int) Math.min(temp.Y, mouse.Y),
+										(int) Math.abs(temp.X - mouse.X),
+										(int) Math.abs(temp.Y - mouse.Y)));
 					}
 					temp = Vector2.Zero();
 				}
@@ -348,6 +357,7 @@ public class Level
 
 	public void render(Graphics g)
 	{
+		sprite.startUse();
 		for (Obj curr : positions)
 		{
 			if (curr.getT() != Mode.Wall.i())
@@ -357,14 +367,21 @@ public class Level
 				{
 					int h = 0;
 					for (int j = 0; j < curr.getT(); j++)
-					{
 						h += gridH[j];
-					}
-					Image tmp = sprite.getSubImage(curr.getId() * gridW[curr.getId()], h, gridW[curr.getT()], gridH[curr.getT()]);
-					g.drawImage(tmp, (float) curr.getPos().X, (float) curr.getPos().Y);
+					
+					sprite.drawEmbedded(
+							(float) curr.getPos().X,
+							(float) curr.getPos().Y,
+							(float) curr.getPos().X + gridW[curr.getT()],
+							(float) curr.getPos().Y + gridH[curr.getT()],
+							curr.getId() * gridW[curr.getId()],
+							h,
+							curr.getId() * gridW[curr.getId()] + gridW[curr.getT()],
+							h + gridH[curr.getT()]);
 				}
 			}
 		}
+		sprite.endUse();
 
 		if (inEditor)
 		{
@@ -375,16 +392,6 @@ public class Level
 
 			for (int i = rect.x / gridW[mode]; i * gridW[mode] <= 1920 + (rect.x); i++)
 				g.drawLine(i * gridW[mode], rect.y, i * gridW[mode], rect.y + 1080);
-
-			if (!temp.isZero())
-			{
-				g.setColor(new Color(255, 43, 43, 128));
-				g.fillRect(
-						(float) Math.min(temp.X, mouse.X),
-						(float) Math.min(temp.Y, mouse.Y),
-						(float) Math.abs(temp.X - mouse.X),
-						(float) Math.abs(temp.Y - mouse.Y));
-			}
 		}
 	}
 
@@ -452,6 +459,17 @@ public class Level
 						g.drawLine(w.getX(), w.getY(), tmp.getX(), tmp.getY());
 					}
 				}
+			}
+
+
+			if (!temp.isZero())
+			{
+				g.setColor(new Color(255, 43, 43, 128));
+				g.fillRect(
+						(float) Math.min(temp.X, mouse.X),
+						(float) Math.min(temp.Y, mouse.Y),
+						(float) Math.abs(temp.X - mouse.X),
+						(float) Math.abs(temp.Y - mouse.Y));
 			}
 		}
 	}

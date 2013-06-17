@@ -325,6 +325,20 @@ public class Player
 			{
 				Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
 				double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
+				g.setColor(Color.cyan);
+//				double v = curr.getIntensity() * 9000 / d;
+				
+//				if (v >= 1f)
+//					g.drawString("YOU'RE FULLY VISIBLE (guards alerted on sight)", (float) pos.X - 100, (float) pos.Y - 100);
+//				else if (v >= 0.40f)
+//					g.drawString("YOU ARE VISIBLE (guards will investigate on sight)", (float) pos.X - 100, (float) pos.Y - 100);
+//				else if (v >= 0.15f)
+//					g.drawString("YOU'RE PARTIALLY VISIBLE (guards will investigate if moving)", (float) pos.X - 100, (float) pos.Y - 100);
+//				else if (v >= 0.1f)
+//					g.drawString("YOU'RE ALMOST INVISIBLE (noise and movements will locate you and guards might investigate)", (float) pos.X - 100, (float) pos.Y - 100);
+//				else
+//					g.drawString("YOU'RE INVISIBLE", (float) pos.X - 100, (float) pos.Y - 100);
+				
 				if (curr.isSwitched_on() && curr.isOn())
 				{
 					Rect rect =

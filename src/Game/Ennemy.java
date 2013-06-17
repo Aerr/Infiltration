@@ -28,7 +28,7 @@ public class Ennemy
 	private static final int size = 72;
 	private static final int bounds = 320;
 	private static final int normalSpeed = 5;
-	private static final int sprintSpeed = 12;
+//	private static final int sprintSpeed = 12;
 	private static final float scale = 0.75f;
 	private float angle;
 
@@ -44,7 +44,6 @@ public class Ennemy
 	private Vector2 old_sign;
 
 	private Vector2 direction;
-	private Waypoint dir;
 	private boolean onPath;
 	private Waypoint start;
 	private Waypoint dest;
@@ -121,43 +120,6 @@ public class Ennemy
 		{
 			move = Move.Walk;
 			speed = direction.GetNormalized();
-//			if (direction.Y > 0f && speed.Y > -1)
-//			{
-//				speed.Y -= dt * 2;
-//				if (speed.Y < -1)
-//					speed.Y = -1;
-//			}
-//			else if (speed.Y < 0)
-//				speed.Y += dt * 4;
-//
-//			if (direction.Y < 0f && speed.Y < 1)
-//			{
-//				speed.Y += dt * 2;
-//
-//				if (speed.Y > 1)
-//					speed.Y = 1;
-//			}
-//			else if (speed.Y > 0)
-//				speed.Y -= dt * 4;
-//
-//			if (direction.X > 0f && speed.X < 1)
-//			{
-//				speed.X += dt * 2;
-//
-//				if (speed.X > 1)
-//					speed.X = 1;
-//			}
-//			else if (speed.X > 0)
-//				speed.X -= dt * 4;
-//			if (direction.X < 0f && speed.X > -1)
-//			{
-//				speed.X -= dt * 2;
-//
-//				if (speed.X < -1)
-//					speed.X = -1;
-//			}
-//			else if (speed.X < 0)
-//				speed.X += dt * 4;
 		}
 		else
 		{
@@ -202,7 +164,7 @@ public class Ennemy
 			stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
 
 			// Movements
-			// if (!colliding)
+			 if (!colliding)
 			{
 				pos.X += (newVel.X);
 				pos.Y += (newVel.Y);
@@ -225,7 +187,7 @@ public class Ennemy
 
 		// DEBUG
 		// Collisions' dummy
-		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+//		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
 		// // Collisions' residues
 		//		 if (intersect != null)
 		//		 g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
@@ -278,13 +240,7 @@ public class Ennemy
 				}
 			}
 		}
-
-		// g.drawString("Coucou", (float) drawPos().X, (float) drawPos().Y);
-		//		if (start != null && dest != null)
-		//		{
-		//			g.fillRect(start.x, start.y, start.width, start.height);
-		//			g.fillRect(dest.x, dest.y, dest.width, dest.height);
-		//		}
+		
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)
@@ -300,13 +256,13 @@ public class Ennemy
 			break;
 		}
 		g.popTransform();
-		if (start != null && dest != null)
-		{
-			g.setColor(Color.green);
-			g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
-			g.setColor(Color.red);
-			g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
-		}
+//		if (start != null && dest != null)
+//		{
+//			g.setColor(Color.green);
+//			g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
+//			g.setColor(Color.red);
+//			g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
+//		}
 	}
 
 	private boolean getColliding(Rectangle r)

@@ -38,7 +38,7 @@ public class ObjectsHandler
 		waypoints = new WaypointManager("level_waypoints.cfg");
 
 		lightEnabled = true;
-		lightManager = new LightManager(w, h, img_light, level.getCurrentRoom(player.getPos()));
+		lightManager = new LightManager(w, h, img_light, level.getAllRooms(), level.getCurrentRoom(player.getPos()));
 	}
 
 	public double random(double x, double y)
