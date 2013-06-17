@@ -47,6 +47,7 @@ public class Ennemy
 	private Waypoint dir;
 	private boolean onPath;
 	private Waypoint start;
+	private Waypoint dest;
 
 	public Vector2 getPos()
 	{
@@ -65,7 +66,7 @@ public class Ennemy
 
 	public Ennemy(Image moves)
 	{
-		this.pos = new Vector2(750, 650);
+		this.pos = new Vector2(900, 600);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
 		moveSpeed = normalSpeed;
@@ -90,12 +91,12 @@ public class Ennemy
 				onPath = false;
 			}
 			closests.remove(0);
-			if (pos.getDistance(new Vector2(start.getX(), start.getY())) > 100 && !onPath)
-				direction = new Vector2(start.getX() - pos.X, pos.Y - start.getY());
-			else
+			if (pos.getDistance(new Vector2(start.getX(), start.getY())) > 2000 && !onPath)
+				direction = new Vector2(start.getX() - pos.X, start.getY() - pos.Y);
+			else if (closests.size() > 0)
 			{
 				onPath = true;
-				Waypoint dest = closests.get(0);
+				dest = closests.get(0);
 				double min = playerPos.getDistance(new Vector2(dest.getX(), dest.getY()));
 				closests.remove(0);			
 				for (Waypoint w : closests)
@@ -107,7 +108,10 @@ public class Ennemy
 						min = tmp;
 					}
 				}
-				direction = new Vector2(dest.getX() - pos.X, pos.Y - dest.getY());
+				if (playerPos.getDistance(getPos()) * 2 <= min)
+					direction = new Vector2(playerPos.X - getPos().X, playerPos.Y - getPos().Y);
+				else
+				direction = new Vector2(dest.getX() - getPos().X, dest.getY() - getPos().Y);
 			}
 		}
 		else
@@ -116,43 +120,44 @@ public class Ennemy
 		if (!direction.isZero())
 		{
 			move = Move.Walk;
-			if (direction.Y > 0f && speed.Y > -1)
-			{
-				speed.Y -= dt * 2;
-				if (speed.Y < -1)
-					speed.Y = -1;
-			}
-			else if (speed.Y < 0)
-				speed.Y += dt * 4;
-
-			if (direction.Y < 0f && speed.Y < 1)
-			{
-				speed.Y += dt * 2;
-
-				if (speed.Y > 1)
-					speed.Y = 1;
-			}
-			else if (speed.Y > 0)
-				speed.Y -= dt * 4;
-
-			if (direction.X > 0f && speed.X < 1)
-			{
-				speed.X += dt * 2;
-
-				if (speed.X > 1)
-					speed.X = 1;
-			}
-			else if (speed.X > 0)
-				speed.X -= dt * 4;
-			if (direction.X < 0f && speed.X > -1)
-			{
-				speed.X -= dt * 2;
-
-				if (speed.X < -1)
-					speed.X = -1;
-			}
-			else if (speed.X < 0)
-				speed.X += dt * 4;
+			speed = direction.GetNormalized();
+//			if (direction.Y > 0f && speed.Y > -1)
+//			{
+//				speed.Y -= dt * 2;
+//				if (speed.Y < -1)
+//					speed.Y = -1;
+//			}
+//			else if (speed.Y < 0)
+//				speed.Y += dt * 4;
+//
+//			if (direction.Y < 0f && speed.Y < 1)
+//			{
+//				speed.Y += dt * 2;
+//
+//				if (speed.Y > 1)
+//					speed.Y = 1;
+//			}
+//			else if (speed.Y > 0)
+//				speed.Y -= dt * 4;
+//
+//			if (direction.X > 0f && speed.X < 1)
+//			{
+//				speed.X += dt * 2;
+//
+//				if (speed.X > 1)
+//					speed.X = 1;
+//			}
+//			else if (speed.X > 0)
+//				speed.X -= dt * 4;
+//			if (direction.X < 0f && speed.X > -1)
+//			{
+//				speed.X -= dt * 2;
+//
+//				if (speed.X < -1)
+//					speed.X = -1;
+//			}
+//			else if (speed.X < 0)
+//				speed.X += dt * 4;
 		}
 		else
 		{
@@ -187,25 +192,8 @@ public class Ennemy
 			{
 				for (Rectangle r : rects)
 				{
-					colliding = getColliding(r);
-					if (colliding)
-					{
-						if (pos.Y >= r.y && pos.Y <= r.y + r.height + 300)
-						{
-							if (pos.Y <= r.y + r.height)
-								speed = new Vector2(0, 1);
-							else
-								speed = new Vector2(0, Math.signum(playerRect.getCenterY() - pos.Y));
-						}
-						else if (pos.X >= r.x && pos.X <= r.x + r.width + 300)
-						{
-
-							if (pos.X <= r.x + r.width)
-								speed = new Vector2(1, 0);
-							else
-								speed = new Vector2(Math.signum(playerRect.getCenterX() - pos.X), 0);
-						}
-					}
+					if (colliding = getColliding(r))
+						break;
 				}
 			}
 
@@ -243,6 +231,7 @@ public class Ennemy
 		//		 g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
+
 		// ---DEBUG
 
 		// Shadow drawing
@@ -311,6 +300,13 @@ public class Ennemy
 			break;
 		}
 		g.popTransform();
+		if (start != null && dest != null)
+		{
+			g.setColor(Color.green);
+			g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
+			g.setColor(Color.red);
+			g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
+		}
 	}
 
 	private boolean getColliding(Rectangle r)
@@ -323,11 +319,11 @@ public class Ennemy
 			if (h < 12 || Math.min(h, w) == h)
 			{
 				if (speed.Y > 0)
-					pos.Y -= h + 1;
+					pos.Y -= h;
 				else if (speed.Y < 0)
-					pos.Y += h + 1;
+					pos.Y += h;
 			}
-			else if (h < 50)
+			else if (h < 30)
 			{
 				if (intersect.getY() + h > collision.getCenterY())
 					pos.Y -= h;
@@ -337,11 +333,11 @@ public class Ennemy
 			if (w < 12 || Math.min(h, w) == w)
 			{
 				if (speed.X > 0)
-					pos.X -= w + 1;
+					pos.X -= w;
 				else if (speed.X < 0)
-					pos.X += w + 1;
+					pos.X += w;
 			}
-			else if (w < 50)
+			else if (w < 30)
 			{
 				if (intersect.getX() + w > collision.getCenterX())
 					pos.X -= w;

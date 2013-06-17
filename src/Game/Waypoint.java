@@ -23,11 +23,11 @@ public class Waypoint
 	}
 	public int getX()
 	{
-		return x;
+		return x - 15;
 	}
 	public int getY()
 	{
-		return y;
+		return y - 15;
 	}
 
 	public Waypoint(double x, double y)

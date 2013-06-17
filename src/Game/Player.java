@@ -70,7 +70,7 @@ public class Player
 
 	public Player(Image moves, Image fight)
 	{
-		this.pos = new Vector2(900, 600);
+		this.pos = new Vector2(620, 1880);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
 		moveSpeed = normalSpeed;

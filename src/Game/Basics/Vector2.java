@@ -63,7 +63,7 @@ public class Vector2
 
 	public Vector2 Mul(Vector2 v)
 	{
-		return (new Vector2(X / v.X, Y / v.Y));
+		return (new Vector2(X * v.X, Y * v.Y));
 	}
 
 	public double GetLength()
