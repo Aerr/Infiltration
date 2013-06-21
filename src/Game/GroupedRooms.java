@@ -2,6 +2,8 @@ package Game;
 
 import java.util.LinkedList;
 
+import Game.Basics.Vector2;
+
 public class GroupedRooms
 {
 	public class ComputedPlace
@@ -87,7 +89,7 @@ public class GroupedRooms
 	{
 		lights.remove(l);
 	}
-	
+
 	public void InitalizeNewPositions()
 	{
 		places = new ComputedPlace[rooms.size()][lights.size()];
@@ -104,5 +106,27 @@ public class GroupedRooms
 	public void AssignPosition(int i, int j)
 	{
 		places[i][j] = null; 
+	}
+
+	public Vector2 GetLightPos(int j)
+	{
+		int i = 0;
+		ComputedPlace p = null;
+		while ((p = places[i++][j]) == null);
+		double max = p.h * p.w;
+		for (; i < places.length; i++)
+		{
+			ComputedPlace t1 = places[i][j];
+			if (t1 != null)
+			{
+				double t2 = t1.h * t1.w;
+				if (t2 > max)
+				{
+					max = t2;
+					p = t1;
+				}
+			}
+		}
+		return (new Vector2(p.getX(), p.getY()));
 	}
 }

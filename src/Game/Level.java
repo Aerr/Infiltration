@@ -368,7 +368,7 @@ public class Level
 					int h = 0;
 					for (int j = 0; j < curr.getT(); j++)
 						h += gridH[j];
-					
+
 					sprite.drawEmbedded(
 							(float) curr.getPos().X,
 							(float) curr.getPos().Y,
@@ -440,6 +440,7 @@ public class Level
 					{
 						// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
 						g.fillOval(l.getX() - 15, l.getY() - 15, 30, 30);
+//						g.fillOval(playerPos.getX() - 30, playerPos.getY() - 30, 60, 60);
 					}
 				}
 			}
