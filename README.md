@@ -3,4 +3,4 @@ Infiltration
 
 Game based on infiltration
 Created by Aerr.
-See here: http://aerr.github.io/Infiltration/
+Check this out: http://aerr.github.io/Infiltration/ (coming soon)
