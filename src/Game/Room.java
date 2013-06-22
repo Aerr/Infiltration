@@ -13,9 +13,12 @@ public class Room
 	}
 
 	/**
-	 * Find if a point is contained in a room	 * 
-	 * @param posX The X coordinate of the point
-	 * @param posY The Y coordinate of the point
+	 * Find if a point is contained in a room *
+	 * 
+	 * @param posX
+	 *            The X coordinate of the point
+	 * @param posY
+	 *            The Y coordinate of the point
 	 * 
 	 * @return Whether or not the point is contained in the room.
 	 */

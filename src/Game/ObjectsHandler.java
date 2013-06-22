@@ -53,12 +53,12 @@ public class ObjectsHandler
 		GL11.glEnable(GL11.GL_BLEND);
 
 		player.Render(gc, g, level.getCurrentLights(player.getPos()));
-		ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
+		// ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
 
 		if (!inEditor)
 			GL11.glDisable(GL11.GL_BLEND);
 		level.renderOnTop(g);
-		
+
 		GL11.glEnable(GL11.GL_BLEND);
 
 		if (lightEnabled)
@@ -71,12 +71,13 @@ public class ObjectsHandler
 		level.Update(camPos);
 		if (inEditor)
 		{
-			level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip);
+			if (level.UpdateEditor(new Vector2(x + camPos.X, y + camPos.Y), ip))
+				lightManager.init(level.getAllRooms());
 		}
 
 		player.HandleInput(ip, dt);
 		player.Update(rects);
-		
+
 		ennemy.HandleMoves(dt, player.getPos(), waypoints.getClosestWaypoint(ennemy.getPos()));
 		ennemy.Update(rects, player.getCollision());
 
@@ -103,7 +104,7 @@ public class ObjectsHandler
 			level.Save_Level();
 		else
 			level.setWaypoints(waypoints.getWaypoints());
-		
+
 		inEditor = b;
 		level.setInEditor(b);
 	}

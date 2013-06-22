@@ -5,10 +5,12 @@ import java.util.LinkedList;
 public class Waypoint
 {
 	private int ID;
+
 	public int getID()
 	{
 		return ID;
 	}
+
 	public void setID(int iD)
 	{
 		ID = iD;
@@ -21,10 +23,12 @@ public class Waypoint
 	{
 		return links;
 	}
+
 	public int getX()
 	{
 		return x - 15;
 	}
+
 	public int getY()
 	{
 		return y - 15;
@@ -32,8 +36,8 @@ public class Waypoint
 
 	public Waypoint(double x, double y)
 	{
-		this.x = (int)x;
-		this.y = (int)y;
+		this.x = (int) x;
+		this.y = (int) y;
 
 		this.links = new LinkedList<Integer>();
 	}
@@ -41,7 +45,7 @@ public class Waypoint
 	public void addLink(int i)
 	{
 		boolean exists = false;
-		for (Integer a: links)
+		for (Integer a : links)
 		{
 			if (a == i)
 			{
@@ -52,6 +56,7 @@ public class Waypoint
 		if (!exists)
 			this.links.add(i);
 	}
+
 	public void removeLink(Integer i)
 	{
 		links.remove(i);

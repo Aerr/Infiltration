@@ -9,32 +9,40 @@ public class GroupedRooms
 	public class ComputedPlace
 	{
 		private int srcX, srcY;
+
 		public int getSrcX()
 		{
 			return srcX;
 		}
+
 		public int getSrcY()
 		{
 			return srcY;
 		}
+
 		public int getX()
 		{
 			return x;
 		}
+
 		public int getY()
 		{
 			return y;
 		}
+
 		public int getW()
 		{
 			return w;
 		}
+
 		public int getH()
 		{
 			return h;
 		}
+
 		private int x, y;
 		private int w, h;
+
 		public ComputedPlace(int srcX, int srcY, int x, int y, int w, int h)
 		{
 			this.srcX = srcX;
@@ -45,6 +53,7 @@ public class GroupedRooms
 			this.h = h;
 		}
 	}
+
 	private LinkedList<Room> rooms;
 	private LinkedList<Light> lights;
 	private ComputedPlace places[][];
@@ -72,6 +81,8 @@ public class GroupedRooms
 
 	public void addLight(Light l)
 	{
+		// l.setID(this.lights.size());
+
 		this.lights.add(l);
 	}
 
@@ -87,6 +98,7 @@ public class GroupedRooms
 
 	public void removeLight(Light l)
 	{
+		// places = null;
 		lights.remove(l);
 	}
 
@@ -94,25 +106,31 @@ public class GroupedRooms
 	{
 		places = new ComputedPlace[rooms.size()][lights.size()];
 	}
+
 	/**
-	 * @param i : index of the room containing the light
-	 * @param j : index of the light contained in the room
-	 * @param src : computed position
+	 * @param i
+	 *            : index of the room containing the light
+	 * @param j
+	 *            : index of the light contained in the room
+	 * @param src
+	 *            : computed position
 	 */
 	public void AssignPosition(int i, int j, int srcX, int srcY, int x, int y, int w, int h)
 	{
-		places[i][j] = new ComputedPlace(srcX, srcY, x, y, w, h); 
+		places[i][j] = new ComputedPlace(srcX, srcY, x, y, w, h);
 	}
+
 	public void AssignPosition(int i, int j)
 	{
-		places[i][j] = null; 
+		places[i][j] = null;
 	}
 
 	public Vector2 GetLightPos(int j)
 	{
 		int i = 0;
 		ComputedPlace p = null;
-		while ((p = places[i++][j]) == null);
+		while ((p = places[i++][j]) == null)
+			;
 		double max = p.h * p.w;
 		for (; i < places.length; i++)
 		{

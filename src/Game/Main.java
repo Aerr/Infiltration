@@ -42,7 +42,7 @@ public class Main extends BasicGame
 		Image img_floor = null;
 		Image img_wall = null;
 		Image img_light = null;
-		
+
 		try
 		{
 			img_fight = new Image("images/hit.png");
@@ -115,7 +115,7 @@ public class Main extends BasicGame
 		{
 			System.exit(0);
 		}
-		
+
 		// Flushes old unused datas
 		ip.clearKeyPressedRecord();
 		ip.clearMousePressedRecord();

@@ -36,10 +36,13 @@ public class LightManager
 		rooms = current_rooms;
 
 		for (GroupedRooms groupedRooms : all_rooms)
-		{
-			groupedRooms.InitalizeNewPositions();
 			computeLights(groupedRooms);
-		}
+	}
+
+	public void init(LinkedList<GroupedRooms> all_rooms)
+	{
+		for (GroupedRooms groupedRooms : all_rooms)
+			computeLights(groupedRooms);
 	}
 
 	public void update(double dt, GroupedRooms current_rooms)
@@ -99,7 +102,6 @@ public class LightManager
 		g.fillRect(0, 0, resX, resY);
 	}
 
-
 	private void drawLights(Graphics g, GroupedRooms gp, Color c)
 	{
 		if (gp != null)
@@ -134,10 +136,12 @@ public class LightManager
 			}
 		}
 	}
+
 	private void computeLights(GroupedRooms gp)
 	{
 		if (gp != null)
 		{
+			gp.InitalizeNewPositions();
 			int i = 0, j = 0;
 			for (Light l : gp.getLights())
 			{
@@ -148,7 +152,7 @@ public class LightManager
 					// Top-Left corner of the image (where it should be drawn)
 					int srcX = (int) (l.getX() - tmp.getWidth() / 2);
 					int srcY = (int) (l.getY() - tmp.getHeight() / 2);
-					Rectangle r1 = new Rectangle (room.x, room.y, room.width, room.height);
+					Rectangle r1 = new Rectangle(room.x, room.y, room.width, room.height);
 					Rectangle r2 = new Rectangle(srcX, srcY, tmp.getWidth(), tmp.getHeight());
 
 					if (r1.contains(r2) || r1.intersects(r2))
@@ -161,7 +165,7 @@ public class LightManager
 						int w = Math.min(room.width, Math.min(room.x + room.width - srcX, tmp.getWidth() - x));
 						int h = Math.min(room.height, Math.min(room.y + room.height - srcY, tmp.getHeight() - y));
 						// We get the subimage depending on the value we previously found
-//						tmp = tmp.getSubImage(x, y, w, h);
+						// tmp = tmp.getSubImage(x, y, w, h);
 						// We place it where it should be :
 						// If it exceeded the right/top limits, it must be drawn at the room's top-left corner
 						// Else, simply at the starting point (srcX, srcY)
@@ -182,4 +186,3 @@ public class LightManager
 		}
 	}
 }
-
