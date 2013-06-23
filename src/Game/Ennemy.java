@@ -25,10 +25,15 @@ public class Ennemy
 		IdleStand, Sprint, Walk
 	}
 
+	private enum State
+	{
+		Normal, Suspicious, Alerted
+	}
+
 	private static final int size = 72;
 	private static final int bounds = 320;
 	private static final int normalSpeed = 5;
-//	private static final int sprintSpeed = 12;
+	// private static final int sprintSpeed = 12;
 	private static final float scale = 0.75f;
 	private float angle;
 
@@ -47,6 +52,7 @@ public class Ennemy
 	private boolean onPath;
 	private Waypoint start;
 	private Waypoint dest;
+	private State state;
 
 	public Vector2 getPos()
 	{
@@ -65,6 +71,8 @@ public class Ennemy
 
 	public Ennemy(Image moves)
 	{
+		state = State.Normal;
+		
 		this.pos = new Vector2(900, 600);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
@@ -81,8 +89,8 @@ public class Ennemy
 	}
 
 	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Waypoint> closests)
-	{		
-		if (closests != null)
+	{
+		if (state == State.Alerted && closests != null)
 		{
 			if (start != closests.get(0))
 			{
@@ -97,7 +105,7 @@ public class Ennemy
 				onPath = true;
 				dest = closests.get(0);
 				double min = playerPos.getDistance(new Vector2(dest.getX(), dest.getY()));
-				closests.remove(0);			
+				closests.remove(0);
 				for (Waypoint w : closests)
 				{
 					double tmp = playerPos.getDistance(new Vector2(w.getX(), w.getY()));
@@ -110,7 +118,7 @@ public class Ennemy
 				if (playerPos.getDistance(getPos()) * 2 <= min)
 					direction = new Vector2(playerPos.X - getPos().X, playerPos.Y - getPos().Y);
 				else
-				direction = new Vector2(dest.getX() - getPos().X, dest.getY() - getPos().Y);
+					direction = new Vector2(dest.getX() - getPos().X, dest.getY() - getPos().Y);
 			}
 		}
 		else
@@ -128,10 +136,15 @@ public class Ennemy
 
 	}
 
-	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect)
+	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect, double visibility)
 	{
 		// No need to update when not moving
 		// -> No collisions, no change of angles, no change of position
+		if (visibility >= 0.35f)
+			state = State.Alerted;
+		else
+			state = State.Normal;
+		
 		if (move != Move.IdleStand)
 		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
@@ -164,7 +177,7 @@ public class Ennemy
 			stand_walk.setSpeed((float) newVel.GetLength() * 0.55f);
 
 			// Movements
-			 if (!colliding)
+			if (!colliding)
 			{
 				pos.X += (newVel.X);
 				pos.Y += (newVel.Y);
@@ -187,10 +200,10 @@ public class Ennemy
 
 		// DEBUG
 		// Collisions' dummy
-//		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+		// g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
 		// // Collisions' residues
-		//		 if (intersect != null)
-		//		 g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		// if (intersect != null)
+		// g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 
@@ -240,7 +253,7 @@ public class Ennemy
 				}
 			}
 		}
-		
+
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)
@@ -256,13 +269,13 @@ public class Ennemy
 			break;
 		}
 		g.popTransform();
-//		if (start != null && dest != null)
-//		{
-//			g.setColor(Color.green);
-//			g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
-//			g.setColor(Color.red);
-//			g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
-//		}
+		// if (start != null && dest != null)
+		// {
+		// g.setColor(Color.green);
+		// g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
+		// g.setColor(Color.red);
+		// g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
+		// }
 	}
 
 	private boolean getColliding(Rectangle r)

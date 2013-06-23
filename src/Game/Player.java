@@ -44,6 +44,7 @@ public class Player
 	private int moveSpeed;
 	private Vector2 speed;
 	private Rectangle collision;
+
 	public Rectangle getCollision()
 	{
 		return collision;
@@ -52,6 +53,12 @@ public class Player
 	private Rectangle intersect;
 	public Vector2 pos;
 	private Vector2 old_sign;
+	private double visibility;
+
+	public double getVisibility()
+	{
+		return visibility;
+	}
 
 	public Vector2 getPos()
 	{
@@ -62,7 +69,7 @@ public class Player
 	{
 		return (new Vector2(pos.X + 85, pos.Y + 55));
 	}
-	
+
 	public Vector2 drawPos()
 	{
 		return (new Vector2(pos.X - size * scale, pos.Y - size * scale));
@@ -315,15 +322,16 @@ public class Player
 
 		// DEBUG
 		// Collisions' dummy
-//		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
-//		// Collisions' residues
-//		if (intersect != null)
-//			g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		// g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+		// // Collisions' residues
+		// if (intersect != null)
+		// g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
 
 		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
 		// ---DEBUG
 
 		// Shadow drawing
+		visibility = 0;
 		if (lights != null)
 		{
 			for (Light curr : lights)
@@ -333,22 +341,14 @@ public class Player
 					Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
 					double d = (new Vector2(middlePos().X, middlePos().Y)).getDistance(new Vector2(curr.getX(), curr.getY()));
 					g.setColor(Color.cyan);
-					double v = curr.getIntensity() * 5000 / d;
-					double coef = 1f;
-					if (move == Move.Crouch || move == Move.IdleCrouch)
-						coef = 2.5f;
 					
-					if (v >= 0.8f * coef)
-						g.drawString("YOU'RE FULLY VISIBLE (guards alerted on sight)", (float) pos.X - 100, (float) pos.Y - 100);
-					else if (v >= 0.35f * coef)
-						g.drawString("YOU ARE VISIBLE (guards will investigate on sight)", (float) pos.X - 100, (float) pos.Y - 100);
-					else if (v >= 0.15f * coef)
-						g.drawString("YOU'RE PARTIALLY VISIBLE (guards will investigate if moving)", (float) pos.X - 100, (float) pos.Y - 100);
-					else if (v >= 0.055f * coef)
-						g.drawString("YOU'RE ALMOST INVISIBLE (noise and movements will locate you and guards might investigate)", (float) pos.X - 100, (float) pos.Y - 100);
-					else
-						g.drawString("YOU'RE INVISIBLE", (float) pos.X - 100, (float) pos.Y - 100);
+					double t = curr.getIntensity() * 5000 / d;
+					if (move == Move.IdleCrouch || move == Move.Crouch)
+						t /= 2f;
 					
+					if (t > visibility)
+						visibility = t;
+
 					Rect rect =
 							new Rect(
 									(int) pos.X + 32,
@@ -384,7 +384,7 @@ public class Player
 				}
 			}
 		}
-		
+
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
 		switch (move)

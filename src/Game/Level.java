@@ -172,7 +172,7 @@ public class Level
 		rect.y = ((int) pos.Y);
 	}
 
-	public void UpdateEditor(Vector2 pos, Input ip)
+	public boolean UpdateEditor(Vector2 pos, Input ip)
 	{
 		mouse = pos;
 		// Clicking : Placing Elements
@@ -217,7 +217,7 @@ public class Level
 					for (Waypoint w : waypoints)
 					{
 						if (mouse.getDistance(new Vector2(w.getX(), w.getY())) < 300)
-						{	
+						{
 							waypoints.remove(w);
 							break;
 						}
@@ -234,6 +234,7 @@ public class Level
 					while (currentId > rooms.size() - 1)
 						rooms.add(new GroupedRooms());
 					rooms.get(currentId).addLight(new Light(mouse.X, mouse.Y, currentIntensity, 0));
+					return true;
 				}
 				else if (ip.isMouseButtonDown(1))
 				{
@@ -244,7 +245,7 @@ public class Level
 							if (mouse.getDistance(new Vector2(l.getX(), l.getY())) < 100)
 							{
 								room.removeLight(l);
-								break;
+								return true;
 							}
 						}
 					}
@@ -258,7 +259,7 @@ public class Level
 				else
 				{
 					Clean_List();
-					for (Obj o: positions)
+					for (Obj o : positions)
 					{
 						if (o.getPos().Equals(new Vector2(mouse.X, mouse.Y)))
 						{
@@ -353,6 +354,8 @@ public class Level
 			currentIntensity += 0.2f;
 		else if (ip.isKeyPressed(Input.KEY_SUBTRACT) && currentIntensity > 0.5f)
 			currentIntensity -= 0.2f;
+
+		return false;
 	}
 
 	public void render(Graphics g)
@@ -440,7 +443,7 @@ public class Level
 					{
 						// if (room != null && room.contains((int)curr.GetX(), (int)curr.GetY()))
 						g.fillOval(l.getX() - 15, l.getY() - 15, 30, 30);
-//						g.fillOval(playerPos.getX() - 30, playerPos.getY() - 30, 60, 60);
+						// g.fillOval(playerPos.getX() - 30, playerPos.getY() - 30, 60, 60);
 					}
 				}
 			}
@@ -448,7 +451,7 @@ public class Level
 			{
 				if (currWaypoint != null)
 				{
-					g.drawLine(currWaypoint.getX(), currWaypoint.getY(), (float)mouse.X, (float)mouse.Y);
+					g.drawLine(currWaypoint.getX(), currWaypoint.getY(), (float) mouse.X, (float) mouse.Y);
 				}
 				for (Waypoint w : waypoints)
 				{
@@ -461,7 +464,6 @@ public class Level
 					}
 				}
 			}
-
 
 			if (!temp.isZero())
 			{
@@ -667,9 +669,9 @@ public class Level
 
 	}
 
-	public void printInfo(Graphics g, Vector2 playerPos)
+	public void printInfo(Graphics g, Vector2 playerPos, double visibility)
 	{
-		g.setColor(Color.red);
+		g.setColor(Color.yellow);
 		String[] m = new String[] { "Floor", "Wall", "Light", "AI" };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
 		g.drawString("(Id: " + currentId + ")", rect.x + 125, rect.y + 45);
@@ -678,5 +680,18 @@ public class Level
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 		g.drawString(String.format("Current room's ID: %d", getCurrentID(playerPos)), rect.x + 10, rect.y + 115);
+		
+		g.setColor(Color.lightGray);
+		g.drawString(String.format("Visibility: %f", visibility), rect.x + 10, rect.y + 150);
+		String msg = "YOU'RE INVISIBLE";
+		if (visibility >= 0.8f)
+			msg = "YOU'RE FULLY VISIBLE (guards alerted on sight)";
+		else if (visibility >= 0.35f)
+			msg = "YOU ARE VISIBLE (guards will investigate on sight)";
+		else if (visibility >= 0.15f)
+			msg = "YOU'RE PARTIALLY VISIBLE (guards will investigate if moving)";
+		else if (visibility >= 0.055f)
+			msg = "YOU'RE ALMOST INVISIBLE (noise and movements will locate you and guards might investigate)";
+		g.drawString(msg, rect.x + 10, rect.y + 180);
 	}
 }

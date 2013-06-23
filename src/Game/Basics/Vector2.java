@@ -12,12 +12,12 @@ public class Vector2
 
 	public int getX()
 	{
-		return (int)X;
+		return (int) X;
 	}
 
 	public int getY()
 	{
-		return (int)Y;
+		return (int) Y;
 	}
 
 	public Vector2(double x, double y)
@@ -117,6 +117,7 @@ public class Vector2
 		// We'd rather square the other side of the (in)equation
 		return (dX + dY);
 	}
+
 	public double getDistance(double vX, double vY)
 	{
 		double dX = Math.pow((X - vX), 2);

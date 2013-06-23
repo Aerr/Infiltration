@@ -1,11 +1,11 @@
 package Game;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 
 import Game.Basics.Vector2;
-
 
 public class WaypointManager
 {
@@ -42,7 +42,7 @@ public class WaypointManager
 					if (line != null && !line.equalsIgnoreCase(""))
 					{
 						p = line.split(" ");
-						for (String s: p)
+						for (String s : p)
 							w.addLink(Integer.valueOf(s));
 					}
 					waypoints.add(w);
@@ -86,4 +86,3 @@ public class WaypointManager
 			return null;
 	}
 }
-
