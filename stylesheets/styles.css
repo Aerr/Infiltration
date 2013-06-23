@@ -825,39 +825,3 @@ section #title .credits {
 section #title .credits.left {
   float: right;
 }
-
-@media print, screen and (max-width: 720px) {
-  #title .credits {
-    display: block;
-  }
-  #title .credits .left {
-    float: none;
-    display: block;
-  }
-}
-@media print, screen and (max-width: 500px) {
-  
-  section {
-    margin-top: 40px;
-  }
-
-  nav {
-    display: none;
-  }		
- #header .title {
-visibility: hidden;
-}
-
-.small
-{
-	visibility: visible	;
-    margin-left: 0px;
-}
-
-.normal 
-{
-visibility: hidden;
-	position: absolute;
-}
-
-}

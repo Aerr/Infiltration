@@ -150,3 +150,55 @@ font-family: Geogrotesque-Semibold, Helvetica, Arial, sans-serif; margin: 0 0 10
   h2, h3 { page-break-after: avoid; }
   
 }
+
+@media print, screen and (max-width: 720px) {
+  #title .credits {
+    display: block;
+  }
+  #title .credits .left {
+    float: none;
+    display: block;
+  }
+}
+@media print, screen and (max-width: 500px) {
+  
+  section {
+    margin-top: 40px;
+  }
+
+ #header .title {
+visibility: hidden;
+}
+
+.small
+{
+	visibility: visible	;
+    margin-left: 0px;
+}
+
+.normal 
+{
+visibility: hidden;
+	position: absolute;
+}
+
+.wrapper
+{
+	width: 100%;
+	padding: 0;
+}
+.wrapper section
+{
+	width: 90%;
+	padding: 0 20px;
+}
+
+.wraper article
+{	
+}
+.flex-direction-nav
+{
+	visibility: hidden;
+}
+
+}
