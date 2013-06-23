@@ -28,21 +28,19 @@
 .flexslider 
 {
 	margin: 0;
-
- 	padding-top: 40px;
-
- 	padding-left: 40px;
-
- 	padding-bottom: 40px;
-
- 	padding-right: 40px;
-
-	
+	padding: 0;
  }
+ 
+.flexslider h2 {
+	margin-left: 20px;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
 .flexslider p
 {	
-	margin-left: 30px;
-
+	margin-left: 35px;
+	margin-right: 35px;
+	text-align:justify;
 }
 
 .flexslider .slides > li {display: none;
@@ -113,14 +111,13 @@ html[xmlns] .slides {display: block;
 }
 .flex-direction-nav a {width: 30px;
  height: 30px;
- margin: -20px 0 0;
  display: block;
  background: url(theme/bg_direction_nav.png) no-repeat 0 0;
  position: absolute;
  top: 50%;
  cursor: pointer;
  text-indent: -9999px;
- opacity: 0;
+ opacity: 0.1;
  -webkit-transition: all .3s ease;
 }
 .flex-direction-nav .flex-next {background-position: 100% 0;
@@ -128,18 +125,11 @@ html[xmlns] .slides {display: block;
  }
 .flex-direction-nav .flex-prev {left: -36px;
 }
-.flexslider:hover .flex-next {opacity: 0.8;
- right: 5px;
-}
-.flexslider:hover .flex-prev {opacity: 0.8;
- left: 5px;
-}
-.flexslider:hover .flex-next:hover, .flexslider:hover .flex-prev:hover {opacity: 1;
-}
-.flex-direction-nav .flex-disabled {
- filter:alpha(opacity=30);
- cursor: default;
-}
+.flexslider:hover .flex-next {opacity: 0.5;}
+.flexslider:hover .flex-prev {opacity: 0.5;}
+.flexslider:hover .flex-next:hover {opacity: 1;}
+.flexslider:hover .flex-prev:hover {opacity: 1;}
+
 
 /* Control Nav */
 .flex-control-nav {width: 100%;
