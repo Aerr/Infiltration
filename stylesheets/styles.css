@@ -68,6 +68,17 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.normal 
+{
+	visibility: visible;
+}
+
+.small
+{
+	visibility: hidden;
+    margin-left: -25px;
+}
+
 /* normalize.css 2012-02-07T12:37 UTC - http://github.com/necolas/normalize.css */
 /* =============================================================================
    HTML5 display definitions
@@ -700,7 +711,6 @@ dt {
   top: 0px;
   height: 60px;
   width: 100%;
-  position: fixed;
   background: url(../images/nav-bg.gif) #353535;
   border-bottom: 4px solid #434343;
   -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
@@ -783,7 +793,7 @@ dt {
 section {
   max-width: 650px;
   padding: 30px 0px 50px 0px;
-  margin-top: 70px;
+  margin-top: 20px;
 }
 section #title {
   border: 0;
@@ -794,7 +804,7 @@ section #title {
 section #title h1 {
   font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
-  font-size: 55px;
+  font-size: 65px;
   text-align: center;
   line-height: 36px;
 }
@@ -813,38 +823,41 @@ section #title .credits {
   margin-top: -10px;
 }
 section #title .credits.left {
-  float: left;
-}
-section #title .credits.right {
   float: right;
 }
 
 @media print, screen and (max-width: 720px) {
   #title .credits {
     display: block;
-    width: 100%;
-    line-height: 30px;
-    text-align: center;
   }
   #title .credits .left {
     float: none;
     display: block;
   }
-  #title .credits .right {
-    float: none;
-    display: block;
-  }
 }
-@media print, screen and (max-width: 480px) {
-  #header {
-    margin-top: -20px;
-  }
-
+@media print, screen and (max-width: 500px) {
+  
   section {
     margin-top: 40px;
   }
 
   nav {
     display: none;
-  }
+  }		
+ #header .title {
+visibility: hidden;
+}
+
+.small
+{
+	visibility: visible	;
+    margin-left: 0px;
+}
+
+.normal 
+{
+visibility: hidden;
+	position: absolute;
+}
+
 }

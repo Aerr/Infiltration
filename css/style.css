@@ -68,10 +68,11 @@ td { vertical-align: top; }
    ========================================================================== */
 
 body{ font:16px/26px Helvetica, Helvetica Neue, Arial; }
-h1 { font-family: Geogrotesque-Semibold, Helvetica, Arial, sans-serif; margin: 0 0 10px; text-shadow: 0 1px 0 #2F4C63; color: #444; font-size: 32px; }
+h1 { 
+font-family: Geogrotesque-Semibold, Helvetica, Arial, sans-serif; margin: 0 0 10px; color: #444; font-size: 32px; }
+
 .wrapper{
 	width:90%;
-	margin:0 5%;
 }
 
 #slider {
@@ -113,7 +114,6 @@ h1 { font-family: Geogrotesque-Semibold, Helvetica, Arial, sans-serif; margin: 0
 
 	.wrapper{
 		width:1026px; /* 1140px - 10% for margins */
-		margin:0 auto;
 	}
 }
 
@@ -148,4 +148,5 @@ h1 { font-family: Geogrotesque-Semibold, Helvetica, Arial, sans-serif; margin: 0
   @page { margin: 0.5cm; }
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; }
+  
 }
