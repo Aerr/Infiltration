@@ -25,6 +25,11 @@ public class Ennemy
 		IdleStand, Sprint, Walk
 	}
 
+	private enum State
+	{
+		Normal, Suspicious, Alerted
+	}
+
 	private static final int size = 72;
 	private static final int bounds = 320;
 	private static final int normalSpeed = 5;
@@ -47,6 +52,7 @@ public class Ennemy
 	private boolean onPath;
 	private Waypoint start;
 	private Waypoint dest;
+	private State state;
 
 	public Vector2 getPos()
 	{
@@ -65,6 +71,8 @@ public class Ennemy
 
 	public Ennemy(Image moves)
 	{
+		state = State.Normal;
+		
 		this.pos = new Vector2(900, 600);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
@@ -82,7 +90,7 @@ public class Ennemy
 
 	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Waypoint> closests)
 	{
-		if (closests != null)
+		if (state == State.Alerted && closests != null)
 		{
 			if (start != closests.get(0))
 			{
@@ -128,10 +136,15 @@ public class Ennemy
 
 	}
 
-	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect)
+	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect, double visibility)
 	{
 		// No need to update when not moving
 		// -> No collisions, no change of angles, no change of position
+		if (visibility >= 0.35f)
+			state = State.Alerted;
+		else
+			state = State.Normal;
+		
 		if (move != Move.IdleStand)
 		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));

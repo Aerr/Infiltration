@@ -669,9 +669,9 @@ public class Level
 
 	}
 
-	public void printInfo(Graphics g, Vector2 playerPos)
+	public void printInfo(Graphics g, Vector2 playerPos, double visibility)
 	{
-		g.setColor(Color.red);
+		g.setColor(Color.yellow);
 		String[] m = new String[] { "Floor", "Wall", "Light", "AI" };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
 		g.drawString("(Id: " + currentId + ")", rect.x + 125, rect.y + 45);
@@ -680,5 +680,18 @@ public class Level
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 		g.drawString(String.format("Current room's ID: %d", getCurrentID(playerPos)), rect.x + 10, rect.y + 115);
+		
+		g.setColor(Color.lightGray);
+		g.drawString(String.format("Visibility: %f", visibility), rect.x + 10, rect.y + 150);
+		String msg = "YOU'RE INVISIBLE";
+		if (visibility >= 0.8f)
+			msg = "YOU'RE FULLY VISIBLE (guards alerted on sight)";
+		else if (visibility >= 0.35f)
+			msg = "YOU ARE VISIBLE (guards will investigate on sight)";
+		else if (visibility >= 0.15f)
+			msg = "YOU'RE PARTIALLY VISIBLE (guards will investigate if moving)";
+		else if (visibility >= 0.055f)
+			msg = "YOU'RE ALMOST INVISIBLE (noise and movements will locate you and guards might investigate)";
+		g.drawString(msg, rect.x + 10, rect.y + 180);
 	}
 }

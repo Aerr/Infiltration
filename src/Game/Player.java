@@ -53,7 +53,12 @@ public class Player
 	private Rectangle intersect;
 	public Vector2 pos;
 	private Vector2 old_sign;
-	private double v;
+	private double visibility;
+
+	public double getVisibility()
+	{
+		return visibility;
+	}
 
 	public Vector2 getPos()
 	{
@@ -326,7 +331,7 @@ public class Player
 		// ---DEBUG
 
 		// Shadow drawing
-		v = 0;
+		visibility = 0;
 		if (lights != null)
 		{
 			for (Light curr : lights)
@@ -336,9 +341,13 @@ public class Player
 					Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
 					double d = (new Vector2(middlePos().X, middlePos().Y)).getDistance(new Vector2(curr.getX(), curr.getY()));
 					g.setColor(Color.cyan);
+					
 					double t = curr.getIntensity() * 5000 / d;
-					if (t > v)
-						v = curr.getIntensity() * 5000 / d;
+					if (move == Move.IdleCrouch || move == Move.Crouch)
+						t /= 2f;
+					
+					if (t > visibility)
+						visibility = t;
 
 					Rect rect =
 							new Rect(
@@ -375,24 +384,6 @@ public class Player
 				}
 			}
 		}
-
-		double coef = 1f;
-		if (move == Move.Crouch || move == Move.IdleCrouch)
-			coef = 2.5f;
-
-		if (v >= 0.8f * coef)
-			g.drawString("YOU'RE FULLY VISIBLE (guards alerted on sight)", (float) pos.X - 100, (float) pos.Y - 100);
-		else if (v >= 0.35f * coef)
-			g.drawString("YOU ARE VISIBLE (guards will investigate on sight)", (float) pos.X - 100, (float) pos.Y - 100);
-		else if (v >= 0.15f * coef)
-			g.drawString("YOU'RE PARTIALLY VISIBLE (guards will investigate if moving)", (float) pos.X - 100, (float) pos.Y - 100);
-		else if (v >= 0.055f * coef)
-			g.drawString(
-					"YOU'RE ALMOST INVISIBLE (noise and movements will locate you and guards might investigate)",
-					(float) pos.X - 100,
-					(float) pos.Y - 100);
-		else
-			g.drawString("YOU'RE INVISIBLE", (float) pos.X - 100, (float) pos.Y - 100);
 
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);

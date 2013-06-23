@@ -53,7 +53,7 @@ public class ObjectsHandler
 		GL11.glEnable(GL11.GL_BLEND);
 
 		player.Render(gc, g, level.getCurrentLights(player.getPos()));
-		// ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
+		ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
 
 		if (!inEditor)
 			GL11.glDisable(GL11.GL_BLEND);
@@ -79,7 +79,7 @@ public class ObjectsHandler
 		player.Update(rects);
 
 		ennemy.HandleMoves(dt, player.getPos(), waypoints.getClosestWaypoint(ennemy.getPos()));
-		ennemy.Update(rects, player.getCollision());
+		ennemy.Update(rects, player.getCollision(), player.getVisibility());
 
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;
@@ -112,6 +112,6 @@ public class ObjectsHandler
 	public void printInfos(Graphics g)
 	{
 		if (inEditor)
-			level.printInfo(g, player.getPos());
+			level.printInfo(g, player.getPos(), player.getVisibility());
 	}
 }
