@@ -78,7 +78,7 @@ public class ObjectsHandler
 		player.HandleInput(ip, dt);
 		player.Update(rects);
 
-		ennemy.HandleMoves(dt, player.getPos(), waypoints.getClosestWaypoint(ennemy.getPos()));
+		ennemy.HandleMoves(dt, waypoints.getClosestWaypoint(player.getPos()), waypoints.getClosestWaypoints(ennemy.getPos()));
 		ennemy.Update(rects, player.getCollision(), player.getVisibility());
 
 		if (ip.isKeyPressed(Input.KEY_I))

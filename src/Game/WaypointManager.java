@@ -58,7 +58,7 @@ public class WaypointManager
 		}
 	}
 
-	public LinkedList<Waypoint> getClosestWaypoint(Vector2 pos)
+	public LinkedList<Waypoint> getClosestWaypoints(Vector2 pos)
 	{
 		if (waypoints.size() > 0)
 		{
@@ -81,6 +81,29 @@ public class WaypointManager
 				res.add(waypoints.get(i));
 			}
 			return res;
+		}
+		else
+			return null;
+	}
+
+	public Waypoint getClosestWaypoint(Vector2 pos)
+	{
+		if (waypoints.size() > 0)
+		{
+			Waypoint start = waypoints.get(0);
+			double min = pos.getDistance(start.getX(), start.getY());
+
+			for (Waypoint w : waypoints)
+			{
+				double tmp = pos.getDistance(w.getX(), w.getY());
+				if (tmp < min)
+				{
+					start = w;
+					min = tmp;
+				}
+			}
+			
+			return start;
 		}
 		else
 			return null;

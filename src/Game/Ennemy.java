@@ -27,7 +27,7 @@ public class Ennemy
 
 	private enum State
 	{
-		Normal, Suspicious, Alerted
+		Normal, Investigating, 	Suspicious, Alerted
 	}
 
 	private static final int size = 72;
@@ -50,8 +50,9 @@ public class Ennemy
 
 	private Vector2 direction;
 	private boolean onPath;
-	private Waypoint start;
-	private Waypoint dest;
+	private Waypoint startingWaypoint;
+	private Waypoint finalWaypoint;
+	private Waypoint destination;
 	private State state;
 
 	public Vector2 getPos()
@@ -72,7 +73,7 @@ public class Ennemy
 	public Ennemy(Image moves)
 	{
 		state = State.Normal;
-		
+
 		this.pos = new Vector2(900, 600);
 		this.speed = Vector2.Zero();
 		move = Move.IdleStand;
@@ -88,37 +89,47 @@ public class Ennemy
 		direction = Vector2.Zero();
 	}
 
-	public void HandleMoves(double dt, Vector2 playerPos, LinkedList<Waypoint> closests)
+	public void HandleMoves(double dt, Waypoint dest, LinkedList<Waypoint> waypoints)
 	{
-		if (state == State.Alerted && closests != null)
+		if (state == State.Alerted)
 		{
-			if (start != closests.get(0))
+			this.destination = dest;
+		}
+
+		if ((state == State.Alerted || state == State.Investigating) && waypoints != null)
+		{
+			if (startingWaypoint != waypoints.get(0))
 			{
-				start = closests.get(0);
+				startingWaypoint = waypoints.get(0);
 				onPath = false;
 			}
-			closests.remove(0);
-			if (pos.getDistance(new Vector2(start.getX(), start.getY())) > 2000 && !onPath)
-				direction = new Vector2(start.getX() - pos.X, start.getY() - pos.Y);
-			else if (closests.size() > 0)
+			waypoints.remove(0);
+
+			if (destination.equals(startingWaypoint))
+			{
+				if (state == State.Investigating)
+					state = State.Normal;
+				direction = Vector2.Zero();
+			}
+			else if (pos.getDistance(new Vector2(startingWaypoint.getX(), startingWaypoint.getY())) > 2000 && !onPath)
+				direction = new Vector2(startingWaypoint.getX() - pos.X, startingWaypoint.getY() - pos.Y);
+			else if (waypoints.size() > 0)
 			{
 				onPath = true;
-				dest = closests.get(0);
-				double min = playerPos.getDistance(new Vector2(dest.getX(), dest.getY()));
-				closests.remove(0);
-				for (Waypoint w : closests)
+				finalWaypoint = waypoints.get(0);
+				double min = destination.getPos().getDistance(new Vector2(finalWaypoint.getX(), finalWaypoint.getY()));
+				waypoints.remove(0);
+				for (Waypoint w : waypoints)
 				{
-					double tmp = playerPos.getDistance(new Vector2(w.getX(), w.getY()));
+					double tmp = destination.getPos().getDistance(new Vector2(w.getX(), w.getY()));
 					if (tmp < min)
 					{
-						dest = w;
+						finalWaypoint = w;
 						min = tmp;
 					}
 				}
-				if (playerPos.getDistance(getPos()) * 2 <= min)
-					direction = new Vector2(playerPos.X - getPos().X, playerPos.Y - getPos().Y);
-				else
-					direction = new Vector2(dest.getX() - getPos().X, dest.getY() - getPos().Y);
+				
+				direction = new Vector2(finalWaypoint.getX() - getPos().X, finalWaypoint.getY() - getPos().Y);
 			}
 		}
 		else
@@ -142,9 +153,11 @@ public class Ennemy
 		// -> No collisions, no change of angles, no change of position
 		if (visibility >= 0.35f)
 			state = State.Alerted;
-		else
+		else if (state == State.Alerted)
+			state = State.Investigating;
+		else if (state != State.Investigating)
 			state = State.Normal;
-		
+
 		if (move != Move.IdleStand)
 		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
@@ -269,13 +282,15 @@ public class Ennemy
 			break;
 		}
 		g.popTransform();
-		// if (start != null && dest != null)
-		// {
-		// g.setColor(Color.green);
-		// g.fillOval(start.getX() - 30, start.getY() - 30, 60, 60);
-		// g.setColor(Color.red);
-		// g.fillOval(dest.getX() - 30, dest.getY() - 30, 60, 60);
-		// }
+		if (startingWaypoint != null && finalWaypoint != null)
+		{
+			g.setColor(Color.green);
+			g.fillOval(startingWaypoint.getX() - 30, startingWaypoint.getY() - 30, 60, 60);
+			g.setColor(Color.red);
+			g.fillOval(finalWaypoint.getX() - 30, finalWaypoint.getY() - 30, 60, 60);
+			g.setColor(Color.cyan);
+			g.fillOval(destination.getX() - 30, destination.getY() - 30, 60, 60);
+		}
 	}
 
 	private boolean getColliding(Rectangle r)

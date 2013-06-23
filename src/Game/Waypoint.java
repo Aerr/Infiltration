@@ -2,6 +2,8 @@ package Game;
 
 import java.util.LinkedList;
 
+import Game.Basics.Vector2;
+
 public class Waypoint
 {
 	private int ID;
@@ -34,6 +36,11 @@ public class Waypoint
 		return y - 15;
 	}
 
+	public Vector2 getPos()
+	{
+		return (new Vector2(getX(), getY()));
+	}
+	
 	public Waypoint(double x, double y)
 	{
 		this.x = (int) x;
