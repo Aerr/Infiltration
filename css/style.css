@@ -203,4 +203,17 @@ visibility: hidden;
 	visibility: hidden;
 }
 
+#menu nav {
+padding: 0;
+}
+
+#menu nav li a {
+font-size: 16px;
+}
+
+#menu nav li {
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
 }

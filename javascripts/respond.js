@@ -1,3 +1,19 @@
+$(document).ready(function(){
+	$( "#menu li a" ).first().toggleClass('down');
+});
+
+function changeMenu(item)
+{
+	 $( "#menu li a" ).each(function(){
+			$(this).removeClass('down');
+	  });
+	$(item).toggleClass('down');
+};
+
+
+
+
+
 if(typeof Object.create!=="function"){
 Object.create=function(o){
 function F(){
