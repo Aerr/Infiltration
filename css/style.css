@@ -204,16 +204,13 @@ visibility: hidden;
 }
 
 #menu nav {
-padding: 0;
+width: 500px;
 }
 
 #menu nav li a {
-font-size: 16px;
-}
-
-#menu nav li {
-	margin-left: 2px;
-	margin-right: 2px;
+	font-size: 16px;
+		padding-left: 3px;
+		padding-right: 3px;
 }
 
 }
