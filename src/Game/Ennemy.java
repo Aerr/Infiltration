@@ -96,7 +96,7 @@ public class Ennemy
 			this.destination = dest;
 		}
 
-		if ((state == State.Alerted || state == State.Investigating) && waypoints != null)
+		if ((state == State.Alerted || state == State.Investigating) && waypoints != null && destination != null)
 		{
 			if (startingWaypoint != waypoints.get(0))
 			{
@@ -111,12 +111,13 @@ public class Ennemy
 					state = State.Normal;
 				direction = Vector2.Zero();
 			}
-			else if (pos.getDistance(new Vector2(startingWaypoint.getX(), startingWaypoint.getY())) > 2000 && !onPath)
+			else if (pos.getDistance(new Vector2(startingWaypoint.getX(), startingWaypoint.getY())) > 1500 && !onPath)
 				direction = new Vector2(startingWaypoint.getX() - pos.X, startingWaypoint.getY() - pos.Y);
 			else if (waypoints.size() > 0)
 			{
 				onPath = true;
 				finalWaypoint = waypoints.get(0);
+				
 				double min = destination.getPos().getDistance(new Vector2(finalWaypoint.getX(), finalWaypoint.getY()));
 				waypoints.remove(0);
 				for (Waypoint w : waypoints)
@@ -285,11 +286,11 @@ public class Ennemy
 		if (startingWaypoint != null && finalWaypoint != null)
 		{
 			g.setColor(Color.green);
-			g.fillOval(startingWaypoint.getX() - 30, startingWaypoint.getY() - 30, 60, 60);
+			g.fillOval(startingWaypoint.drawX() - 30, startingWaypoint.drawY() - 30, 60, 60);
 			g.setColor(Color.red);
-			g.fillOval(finalWaypoint.getX() - 30, finalWaypoint.getY() - 30, 60, 60);
+			g.fillOval(finalWaypoint.drawX() - 30, finalWaypoint.drawY() - 30, 60, 60);
 			g.setColor(Color.cyan);
-			g.fillOval(destination.getX() - 30, destination.getY() - 30, 60, 60);
+			g.fillOval(destination.drawX() - 30, destination.drawY() - 30, 60, 60);
 		}
 	}
 

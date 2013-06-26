@@ -187,7 +187,7 @@ public class Level
 						int i = 0;
 						for (Waypoint w : waypoints)
 						{
-							if (mouse.getDistance(new Vector2(w.getX(), w.getY())) < 300)
+							if (mouse.getDistance(new Vector2(w.drawX(), w.drawY())) < 300)
 							{
 								if (currWaypoint == null)
 								{
@@ -208,7 +208,7 @@ public class Level
 							i++;
 						}
 					}
-					else if (currWaypoint == null)
+					else
 						waypoints.add(new Waypoint(mouse.X, mouse.Y));
 				}
 				else if (ip.isMouseButtonDown(1))
@@ -216,7 +216,7 @@ public class Level
 					int i = 0;
 					for (Waypoint w : waypoints)
 					{
-						if (mouse.getDistance(new Vector2(w.getX(), w.getY())) < 300)
+						if (mouse.getDistance(new Vector2(w.drawX(), w.drawY())) < 300)
 						{
 							waypoints.remove(w);
 							break;
@@ -450,17 +450,17 @@ public class Level
 			else if (mode == Mode.AI.i())
 			{
 				if (currWaypoint != null)
-				{
-					g.drawLine(currWaypoint.getX(), currWaypoint.getY(), (float) mouse.X, (float) mouse.Y);
+				{	
+					g.drawLine(currWaypoint.drawX(), currWaypoint.drawY(), (float) mouse.X, (float) mouse.Y);
 				}
 				for (Waypoint w : waypoints)
 				{
 					g.setColor(Color.blue);
-					g.fillOval(w.getX() - 30, w.getY() - 30, 60, 60);
+					g.fillOval(w.drawX() - 30, w.drawY() - 30, 60, 60);
 					for (Integer i : w.getLinks())
 					{
 						Waypoint tmp = waypoints.get(i);
-						g.drawLine(w.getX(), w.getY(), tmp.getX(), tmp.getY());
+						g.drawLine(w.drawX(), w.drawY(), tmp.drawX(), tmp.drawY());
 					}
 				}
 			}
@@ -640,7 +640,7 @@ public class Level
 			for (Waypoint curr : waypoints)
 			{
 				output.write(String.format("\n"));
-				output.write(String.format("%d %d\n", (int) curr.getX(), (int) curr.getY()));
+				output.write(String.format("%d %d\n", (int) curr.drawX(), (int) curr.drawY()));
 
 				for (Integer i : curr.getLinks())
 					output.write(String.format("%d ", (int) i));

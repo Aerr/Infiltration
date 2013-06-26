@@ -26,19 +26,33 @@ public class Waypoint
 		return links;
 	}
 
+	public int drawX()
+	{
+		return x;
+	}
+
+	public int drawY()
+	{
+		return y;
+	}
+
 	public int getX()
 	{
-		return x - 15;
+		return x - 30;
 	}
 
 	public int getY()
 	{
-		return y - 15;
+		return y - 30;
 	}
 
 	public Vector2 getPos()
 	{
-		return (new Vector2(getX(), getY()));
+		return (new Vector2(x - 30, y - 30));
+	}
+	public Vector2 drawPos()
+	{
+		return (new Vector2(drawX(), drawY()));
 	}
 	
 	public Waypoint(double x, double y)

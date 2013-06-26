@@ -64,11 +64,11 @@ public class WaypointManager
 		{
 			LinkedList<Waypoint> res = new LinkedList<Waypoint>();
 			Waypoint start = waypoints.get(0);
-			double min = pos.getDistance(start.getX(), start.getY());
+			double min = pos.getDistance(start.drawX(), start.drawY());
 
 			for (Waypoint w : waypoints)
 			{
-				double tmp = pos.getDistance(w.getX(), w.getY());
+				double tmp = pos.getDistance(w.drawX(), w.drawY());
 				if (tmp < min)
 				{
 					start = w;
@@ -91,11 +91,11 @@ public class WaypointManager
 		if (waypoints.size() > 0)
 		{
 			Waypoint start = waypoints.get(0);
-			double min = pos.getDistance(start.getX(), start.getY());
+			double min = pos.getDistance(start.drawX(), start.drawY());
 
 			for (Waypoint w : waypoints)
 			{
-				double tmp = pos.getDistance(w.getX(), w.getY());
+				double tmp = pos.getDistance(w.drawX(), w.drawY());
 				if (tmp < min)
 				{
 					start = w;
