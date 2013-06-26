@@ -13,6 +13,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.fills.GradientFill;
 import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Transform;
 
 import Game.Basics.Line;
 import Game.Basics.Rect;
@@ -27,7 +28,7 @@ public class Ennemy
 
 	private enum State
 	{
-		Normal, Investigating, 	Suspicious, Alerted
+		Normal, Investigating, Suspicious, Alerted
 	}
 
 	private static final int size = 72;
@@ -54,6 +55,7 @@ public class Ennemy
 	private Waypoint finalWaypoint;
 	private Waypoint destination;
 	private State state;
+	private Polygon fov;
 
 	public Vector2 getPos()
 	{
@@ -117,7 +119,7 @@ public class Ennemy
 			{
 				onPath = true;
 				finalWaypoint = waypoints.get(0);
-				
+
 				double min = destination.getPos().getDistance(new Vector2(finalWaypoint.getX(), finalWaypoint.getY()));
 				waypoints.remove(0);
 				for (Waypoint w : waypoints)
@@ -129,7 +131,7 @@ public class Ennemy
 						min = tmp;
 					}
 				}
-				
+
 				direction = new Vector2(finalWaypoint.getX() - getPos().X, finalWaypoint.getY() - getPos().Y);
 			}
 		}
@@ -149,16 +151,9 @@ public class Ennemy
 	}
 
 	public void Update(LinkedList<Rectangle> rects, Rectangle playerRect, double visibility)
-	{
+	{		
 		// No need to update when not moving
 		// -> No collisions, no change of angles, no change of position
-		if (visibility >= 0.35f)
-			state = State.Alerted;
-		else if (state == State.Alerted)
-			state = State.Investigating;
-		else if (state != State.Investigating)
-			state = State.Normal;
-
 		if (move != Move.IdleStand)
 		{
 			angle = (float) Math.toDegrees(Math.atan2(speed.X, -speed.Y));
@@ -177,14 +172,14 @@ public class Ennemy
 			old_sign = sign;
 
 			boolean colliding = false;
-			if (!(colliding = getColliding(playerRect)))
-			{
-				for (Rectangle r : rects)
-				{
-					if (colliding = getColliding(r))
-						break;
-				}
-			}
+//			if (!(colliding = getColliding(playerRect)))
+//			{
+//				for (Rectangle r : rects)
+//				{
+//					if (colliding = getColliding(r))
+//						break;
+//				}
+//			}
 
 			Vector2 newVel = speed.GetMul(moveSpeed * 0.5);
 
@@ -196,7 +191,25 @@ public class Ennemy
 				pos.X += (newVel.X);
 				pos.Y += (newVel.Y);
 			}
+			
+
+			fov = new Polygon();
+			float tX = (float) (getPos().X - 50 * old_sign.X), tY = (float) (getPos().Y - 50 * old_sign.Y);
+			fov.addPoint(tX, tY);
+			fov.addPoint((float) (tX - 500), (float) (tY + 800));
+			fov.addPoint((float) (tX + 500), (float) (tY + 800));
+			fov = (Polygon) fov.transform(Transform.createTranslateTransform(-tX, -tY));
+			fov = (Polygon) fov.transform(Transform.createTranslateTransform(tX, tY));
+			fov = (Polygon) fov.transform(Transform.createRotateTransform((float) Math.toRadians((float) Math.toDegrees(Math.atan2(-speed.X, speed.Y)))));
 		}
+		
+		if (visibility >= 0.35f && fov.contains(playerRect.x, playerRect.y))
+			state = State.Alerted;
+		else if (state == State.Alerted)
+			state = State.Investigating;
+		else if (state != State.Investigating)
+			state = State.Normal;
+
 	}
 
 	private int signOf(double x)
@@ -224,49 +237,49 @@ public class Ennemy
 		// ---DEBUG
 
 		// Shadow drawing
-		if (lights != null)
-		{
-			for (Light curr : lights)
-			{
-				Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
-				double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
-				if (curr.isSwitched_on() && curr.isOn())
-				{
-					Rect rect =
-							new Rect(
-									(int) pos.X + 32,
-									(int) pos.Y + 32,
-									(int) pos.X + 96,
-									(int) pos.Y + 32,
-									(int) pos.X + 32,
-									(int) pos.Y + 96,
-									(int) pos.X + 96,
-									(int) pos.Y + 96);
-					tmp.a -= d / 1500000f;
-
-					for (int j = 0; j < 4; j++)
-					{
-						Line l = rect.edges[j];
-						Polygon poly = new Polygon();
-						poly.addPoint(l.x0, l.y0);
-						poly.addPoint(l.x1, l.y1);
-						poly.addPoint(l.x1 - curr.getX() + l.x1, l.y1 - curr.getY() + l.y1);
-						poly.addPoint(l.x0 - curr.getX() + l.x0, l.y0 - curr.getY() + l.y0);
-
-						ShapeFill fill =
-								new GradientFill(
-										(l.x0 + l.x1) / 2,
-										(l.y1 + l.y0) / 2,
-										tmp,
-										(l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
-										(l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
-										new Color(0, 0, 0, 0f));
-
-						g.fill(poly, fill);
-					}
-				}
-			}
-		}
+		// if (lights != null)
+		// {
+		// for (Light curr : lights)
+		// {
+		// Color tmp = new Color(0, 0, 0, 0.75f / (lights.size() + 1));
+		// double d = pos.getDistance(new Vector2(curr.getX(), curr.getY()));
+		// if (curr.isSwitched_on() && curr.isOn())
+		// {
+		// Rect rect =
+		// new Rect(
+		// (int) pos.X + 32,
+		// (int) pos.Y + 32,
+		// (int) pos.X + 96,
+		// (int) pos.Y + 32,
+		// (int) pos.X + 32,
+		// (int) pos.Y + 96,
+		// (int) pos.X + 96,
+		// (int) pos.Y + 96);
+		// tmp.a -= d / 1500000f;
+		//
+		// for (int j = 0; j < 4; j++)
+		// {
+		// Line l = rect.edges[j];
+		// Polygon poly = new Polygon();
+		// poly.addPoint(l.x0, l.y0);
+		// poly.addPoint(l.x1, l.y1);
+		// poly.addPoint(l.x1 - curr.getX() + l.x1, l.y1 - curr.getY() + l.y1);
+		// poly.addPoint(l.x0 - curr.getX() + l.x0, l.y0 - curr.getY() + l.y0);
+		//
+		// ShapeFill fill =
+		// new GradientFill(
+		// (l.x0 + l.x1) / 2,
+		// (l.y1 + l.y0) / 2,
+		// tmp,
+		// (l.x1 - curr.getX() + l.x1 + l.x0 - curr.getX() + l.x0) / 2,
+		// (l.y1 - curr.getY() + l.y1 + l.y0 - curr.getY() + l.y0) / 2,
+		// new Color(0, 0, 0, 0f));
+		//
+		// g.fill(poly, fill);
+		// }
+		// }
+		// }
+		// }
 
 		g.pushTransform();
 		g.rotate((float) drawPos().X + GetSize() / 2, (float) drawPos().Y + GetSize() / 2, angle);
@@ -283,6 +296,11 @@ public class Ennemy
 			break;
 		}
 		g.popTransform();
+
+		g.setColor(Color.red);
+		
+		g.fill(fov);
+
 		if (startingWaypoint != null && finalWaypoint != null)
 		{
 			g.setColor(Color.green);
