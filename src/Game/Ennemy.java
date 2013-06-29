@@ -89,6 +89,15 @@ public class Ennemy
 
 		old_sign = Vector2.Zero();
 		direction = Vector2.Zero();
+		
+		fov = new Polygon();
+		float tX = (float) (getPos().X - 50 * old_sign.X), tY = (float) (getPos().Y - 50 * old_sign.Y);
+		fov.addPoint(tX, tY);
+		fov.addPoint((float) (tX - 500), (float) (tY + 800));
+		fov.addPoint((float) (tX + 500), (float) (tY + 800));
+		fov = (Polygon) fov.transform(Transform.createTranslateTransform(-tX, -tY));
+		fov = (Polygon) fov.transform(Transform.createTranslateTransform(tX, tY));
+		fov = (Polygon) fov.transform(Transform.createRotateTransform((float) Math.toRadians((float) Math.toDegrees(Math.atan2(-speed.X, speed.Y)))));
 	}
 
 	public void HandleMoves(double dt, Waypoint dest, LinkedList<Waypoint> waypoints)
