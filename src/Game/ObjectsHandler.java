@@ -16,6 +16,7 @@ import Game.Basics.Vector2;
 public class ObjectsHandler
 {
 	private LinkedList<Rectangle> rects;
+	private LinkedList<Rectangle> walls;
 	private Player player;
 	private Ennemy ennemy;
 	public int scale;
@@ -31,10 +32,13 @@ public class ObjectsHandler
 		this.rects = new LinkedList<Rectangle>();
 
 		player = new Player(img_perso, img_fight);
-		ennemy = new Ennemy(img_perso);
 
 		level = new Level(img_wall);
 		this.rects = level.Load("level.cfg");
+		this.walls = level.getWalls();
+		
+		ennemy = new Ennemy(img_perso, rects);
+		
 		waypoints = new WaypointManager("level_waypoints.cfg");
 
 		lightEnabled = true;
@@ -79,7 +83,7 @@ public class ObjectsHandler
 		player.Update(rects);
 
 		ennemy.HandleMoves(dt, waypoints.getClosestWaypoint(player.getPos()), waypoints.getClosestWaypoints(ennemy.getPos()));
-		ennemy.Update(rects, player.getCollision(), player.getVisibility());
+		ennemy.Update(rects, walls, player.getCollision(), player.getVisibility());
 
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;

@@ -108,6 +108,11 @@ public class Vector2
 	{
 		return (v.X == X && v.Y == Y);
 	}
+	
+	public double getDot(Vector2 v)
+	{
+		return (X * v.X) + (Y * v.Y);
+	}
 
 	public double getDistance(Vector2 v)
 	{

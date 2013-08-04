@@ -565,6 +565,18 @@ public class Level
 		return walls;
 	}
 
+
+	public LinkedList<Rectangle> getWalls()
+	{
+		LinkedList<Rectangle> res = new LinkedList<Rectangle>();
+		int i = Mode.Wall.i();
+		for (Obj o : positions)
+		{
+			if (o.getT() == i)
+				res.add(new Rectangle((int)o.getPos().X, (int)o.getPos().Y, gridW[i], gridH[i]));
+		}
+		return res;
+	}
 	public void Save_Level()
 	{
 		Save_Waypoints();
@@ -680,7 +692,7 @@ public class Level
 		g.fillOval((int) playerPos.X - 15, (int) playerPos.Y - 15, 30, 30);
 		g.drawString(String.format("Pos : %d , %d", (int) rect.getCenterX(), (int) rect.getCenterY()), rect.x + 10, rect.y + 95);
 		g.drawString(String.format("Current room's ID: %d", getCurrentID(playerPos)), rect.x + 10, rect.y + 115);
-		
+
 		g.setColor(Color.lightGray);
 		g.drawString(String.format("Visibility: %f", visibility), rect.x + 10, rect.y + 150);
 		String msg = "YOU'RE INVISIBLE";
