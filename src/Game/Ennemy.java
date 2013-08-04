@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 import java.util.LinkedList;
 
 import org.newdawn.slick.Animation;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -187,7 +186,7 @@ public class Ennemy
 
 		UpdateFOV(walls);
 
-		if (fov.contains(playerRect.x, playerRect.y))
+		if (fov.contains(playerRect.x, playerRect.y) && !PlayerHidden(playerRect.x, playerRect.y))
 		{
 			if (visibility >= 0.8f)
 				// "PLAYER IS FULLY VISIBLE (guards alerted on sight)";
@@ -214,6 +213,16 @@ public class Ennemy
 
 	}
 
+	private boolean PlayerHidden(int posX, int poY)
+	{
+		for (Polygon p : ps)
+		{
+			if (p.contains(posX, poY))
+				return true;
+		}
+		return false;
+	}
+
 	private void UpdateFOV(LinkedList<Rectangle> walls)
 	{
 		ps.clear();
@@ -237,7 +246,6 @@ public class Ennemy
 				lines[2] = new Line(w.x + w.width, w.y, w.x + w.width, w.y + w.height);
 				lines[3] = new Line(w.x, w.y + w.height, w.x + w.width, w.y + w.height);
 
-				Polygon p = null;
 				for (Line l : lines)
 				{
 					Vector2 startToEnd = new Vector2(l.x1, l.y1);
@@ -270,24 +278,11 @@ public class Ennemy
 						xB = ratio * xB + (1 - ratio) * l.x0;
 						yB = ratio * yB + (1 - ratio) * l.y0;
 
-						// yB = 1000 * (yB - l.y0) + l.y0 - ((yB - l.y0) / (xB - l.x0)) * l.x0;
-						// xB = 1000 * (xB - l.y0);
-
 						poly.addPoint(xB, yB);
-						//
-						// if (p == null)
-						// p = poly;
-						// else
-						// p = (Polygon)p.union(poly)[0];
+
 						ps.add(poly);
-						fov = (Polygon) fov.subtract(poly)[0];
-						
-						// break;
 					}
 				}
-				// ps.add(p);
-				// if (p != null)
-				// fov = (Polygon)fov.subtract(p)[0];
 			}
 		}
 	}
@@ -365,31 +360,55 @@ public class Ennemy
 		}
 		g.popTransform();
 
-		// DEBUG
-		// Collisions' dummy
-		// g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
-		// // Collisions' residues
-		// if (intersect != null)
-		// g.drawRect((float) intersect.getX(), (float) intersect.getY(), (float) intersect.getWidth(), (float) intersect.getHeight());
+		/*
+		 * ############# ### DEBUG ### #############
+		 */
 
-		// g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30,30);
-		g.setColor(new Color(1f, 0f, 0f, 0.3f));
-		g.fill(fov);
-
-		g.setColor(Color.cyan);
-		for (Polygon p : ps)
-			g.fill(p);
-
-		if (startingWaypoint != null && finalWaypoint != null)
-		{
-			g.setColor(Color.green);
-			g.fillOval(startingWaypoint.drawX() - 30, startingWaypoint.drawY() - 30, 60, 60);
-			g.setColor(Color.red);
-			g.fillOval(finalWaypoint.drawX() - 30, finalWaypoint.drawY() - 30, 60, 60);
-			g.setColor(Color.cyan);
-			g.fillOval(destination.drawX() - 30, destination.drawY() - 30, 60, 60);
-		}
-		// ---DEBUG
+//		// Collisions' dummy
+//		g.drawRect((float) collision.getX(), (float) collision.getY(), (float) collision.getWidth(), (float) collision.getHeight());
+//
+//		// Exact position used for calculations
+//		g.fillOval((float) collision.getCenterX() - 15, (float) collision.getCenterY() - 15, 30, 30);
+//
+//		// FOV display (color depending on ennemy's state)
+//		switch (state)
+//		{
+//		case Normal:
+//			g.setColor(new Color(100, 169, 87, 66));
+//			break;
+//		case Suspicious:
+//			g.setColor(new Color(242, 141, 59, 66));
+//			break;
+//		case Alerted:
+//			g.setColor(new Color(255, 0, 0, 66));
+//			break;
+//		case Investigating:
+//			g.setColor(new Color(255, 125, 0, 66));
+//			break;
+//		default:
+//			g.setColor(new Color(255, 0, 0, 66));
+//			break;
+//		}
+//		g.fill(fov);
+//
+//		// Hiding area (where player can't be seen by this ennemy)
+//		g.setColor(Color.cyan);
+//		for (Polygon p : ps)
+//			g.fill(p);
+//
+//		// Waypoints
+//		if (startingWaypoint != null && finalWaypoint != null)
+//		{
+//			g.setColor(Color.green);
+//			g.fillOval(startingWaypoint.drawX() - 30, startingWaypoint.drawY() - 30, 60, 60);
+//			g.setColor(Color.red);
+//			g.fillOval(finalWaypoint.drawX() - 30, finalWaypoint.drawY() - 30, 60, 60);
+//			g.setColor(Color.cyan);
+//			g.fillOval(destination.drawX() - 30, destination.drawY() - 30, 60, 60);
+//		}
+		/*
+		 * ############# ### DEBUG ### #############
+		 */
 
 	}
 }
