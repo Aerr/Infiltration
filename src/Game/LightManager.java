@@ -13,8 +13,8 @@ import Game.GroupedRooms.ComputedPlace;
 
 public class LightManager
 {
-	private static final float ambient_lum = 1f;
-	private static final float ambient_dark = 0.001f;
+	private static final float ambient_lum = 2f;
+	private static final float ambient_dark = 0.000f;
 
 	private int resX;
 	private int resY;

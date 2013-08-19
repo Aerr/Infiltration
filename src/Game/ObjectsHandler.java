@@ -15,7 +15,7 @@ import Game.Basics.Vector2;
 
 public class ObjectsHandler
 {
-	private LinkedList<Rectangle> rects;
+	private LinkedList<Rectangle> collision;
 	private LinkedList<Rectangle> walls;
 	private Player player;
 	private Ennemy ennemy;
@@ -26,18 +26,20 @@ public class ObjectsHandler
 
 	private boolean inEditor;
 	private WaypointManager waypoints;
+	private LinkedList<Door> doors;
 
 	public ObjectsHandler(int w, int h, Image img_perso, Image img_floor, Image img_wall, Image img_light, Image img_fight)
 	{
-		this.rects = new LinkedList<Rectangle>();
-
-		player = new Player(img_perso, img_fight);
+		this.collision = new LinkedList<Rectangle>();
 
 		level = new Level(img_wall);
-		this.rects = level.Load("level.cfg");
+		this.collision = level.Load("level.cfg");
 		this.walls = level.getWalls();
+		this.doors = level.getDoors();
+
+		player = new Player(img_perso, img_fight, collision, doors);
 		
-		ennemy = new Ennemy(img_perso, rects);
+//		ennemy = new Ennemy(img_perso, walls);
 		
 		waypoints = new WaypointManager("level_waypoints.cfg");
 
@@ -57,7 +59,7 @@ public class ObjectsHandler
 		GL11.glEnable(GL11.GL_BLEND);
 
 		player.Render(gc, g, level.getCurrentLights(player.getPos()));
-		ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
+//		ennemy.Render(gc, g, level.getCurrentLights(ennemy.getPos()));
 
 		if (!inEditor)
 			GL11.glDisable(GL11.GL_BLEND);
@@ -80,17 +82,17 @@ public class ObjectsHandler
 		}
 
 		player.HandleInput(ip, dt);
-		player.Update(rects);
+		player.Update();
 
-		ennemy.HandleMoves(dt, waypoints.getClosestWaypoint(player.getPos()), waypoints.getClosestWaypoints(ennemy.getPos()));
-		ennemy.Update(rects, walls, player.getCollision(), player.getVisibility());
+//		ennemy.HandleMoves(dt, waypoints.getClosestWaypoint(player.getPos()), waypoints.getClosestWaypoints(ennemy.getPos()));
+//		ennemy.Update(player.getCollision(), player.getVisibility());
 
 		if (ip.isKeyPressed(Input.KEY_I))
 			lightEnabled = !lightEnabled;
 		else if (ip.isKeyPressed(Input.KEY_F12) && inEditor)
 		{
 			level.Init();
-			this.rects = level.Load("level.cfg");
+			this.collision = level.Load("level.cfg");
 		}
 
 		if (lightEnabled)

@@ -54,6 +54,8 @@ public class Player
 	public Vector2 pos;
 	private Vector2 old_sign;
 	private double visibility;
+	private LinkedList<Rectangle> walls;
+	private LinkedList<Door> doors;
 
 	public double getVisibility()
 	{
@@ -80,7 +82,7 @@ public class Player
 		return (scale * bounds);
 	}
 
-	public Player(Image moves, Image fight)
+	public Player(Image moves, Image fight, LinkedList<Rectangle> walls, LinkedList<Door> doors)
 	{
 		this.pos = new Vector2(620, 1880);
 		this.speed = Vector2.Zero();
@@ -89,6 +91,8 @@ public class Player
 		SpriteSheet spritesheet = new SpriteSheet(moves, bounds, bounds);
 
 		collision = new Rectangle((int) pos.X, (int) pos.Y, (int) (size * 1.5f), (int) (size * 1.5f));
+		this.walls = walls;
+		this.doors = doors;
 
 		stand_idle = new Animation(spritesheet, 0, 0, 13, 0, true, 100, true);
 		stand_walk = new Animation(spritesheet, 0, 1, 13, 1, true, 100, true);
@@ -233,7 +237,7 @@ public class Player
 		}
 	}
 
-	public void Update(LinkedList<Rectangle> rects)
+	public void Update()
 	{
 		// No need to update when not moving
 		// -> No collisions, no change of angles, no change of position
@@ -255,11 +259,50 @@ public class Player
 			old_sign = sign;
 
 			boolean colliding = false;
-			for (Rectangle r : rects)
+			for (Rectangle r : walls)
 			{
 				if (collision.contains(r) || collision.intersects(r))
 				{
 					intersect = (Rectangle) collision.createIntersection(r);
+					double w = intersect.getWidth();
+					double h = intersect.getHeight();
+					if (h < 9 || Math.min(h, w) == h)
+					{
+						if (speed.Y > 0)
+							pos.Y -= h;
+						else if (speed.Y < 0)
+							pos.Y += h;
+					}
+					else if (h < 20)
+					{
+						if (intersect.getY() + h > collision.getCenterY())
+							pos.Y -= h;
+						else
+							pos.Y += h;
+					}
+					if (w < 9 || Math.min(h, w) == w)
+					{
+						if (speed.X > 0)
+							pos.X -= w;
+						else if (speed.X < 0)
+							pos.X += w;
+					}
+					else if (w < 20)
+					{
+						if (intersect.getX() + w > collision.getCenterX())
+							pos.X -= w;
+						else
+							pos.X += w;
+					}
+					colliding = true;
+					break;
+				}
+			}
+			for (Door d : doors)
+			{
+				if (collision.contains(d.getR()) || collision.intersects(d.getR()))
+				{
+					intersect = (Rectangle) collision.createIntersection(d.getR());
 					double w = intersect.getWidth();
 					double h = intersect.getHeight();
 					if (h < 9 || Math.min(h, w) == h)
@@ -332,6 +375,7 @@ public class Player
 
 		// Shadow drawing
 		visibility = 0;
+		
 		if (lights != null)
 		{
 			for (Light curr : lights)
@@ -382,6 +426,45 @@ public class Player
 						g.fill(poly, fill);
 					}
 				}
+			}
+		}
+		for (Door d : doors)
+		{
+			float tX = (float) (getPos().X - 50 * old_sign.X);
+			float tY = (float) (getPos().Y - 50 * old_sign.Y);
+			Rectangle w = d.getR();
+			Line[] lines = new Line[4];
+			lines[0] = new Line(w.x, w.y, w.x + w.width, w.y);
+			lines[1] = new Line(w.x, w.y, w.x, w.y + w.height);
+			lines[2] = new Line(w.x + w.width, w.y, w.x + w.width, w.y + w.height);
+			lines[3] = new Line(w.x, w.y + w.height, w.x + w.width, w.y + w.height);
+
+			for (Line l : lines)
+			{
+				Polygon poly = new Polygon();
+				float xB, yB;
+				float ratio = 1f;
+				poly.addPoint(l.x0, l.y0);
+				poly.addPoint(l.x1, l.y1);
+
+				xB = l.x1 - tX + l.x1;
+				yB = l.y1 - tY + l.y1;
+
+				xB = ratio * xB + (1 - ratio) * l.x1;
+				yB = ratio * yB + (1 - ratio) * l.y1;
+
+				poly.addPoint(xB, yB);
+
+				xB = l.x0 - tX + l.x0;
+				yB = l.y0 - tY + l.y0;
+
+				xB = ratio * xB + (1 - ratio) * l.x0;
+				yB = ratio * yB + (1 - ratio) * l.y0;
+
+				poly.addPoint(xB, yB);
+				
+				g.setColor(Color.cyan);
+				g.fill(poly);
 			}
 		}
 

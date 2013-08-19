@@ -20,7 +20,7 @@ public class Level
 {
 	private enum Mode
 	{
-		Floor(0), Wall(1), Light(2), AI(3), End(4);
+		Floor(0), Wall(1), Light(2), AI(3), Door(4), End(5);
 		private int id;
 
 		private Mode(int i)
@@ -64,10 +64,11 @@ public class Level
 	private SpriteSheet sprite;
 
 	LinkedList<Rectangle> walls;
+	LinkedList<Door> doors;
 	private Rectangle rect;
 
-	private static final int[] gridW = new int[] { 268, 67, 1920, 67 };
-	private static final int[] gridH = new int[] { 178, 67, 1080, 67 };
+	private static final int[] gridW = new int[] { 268, 67, 1920, 67, 268 };
+	private static final int[] gridH = new int[] { 178, 67, 1080, 67, 16 };
 
 	private boolean inEditor;
 	private int mode;
@@ -164,6 +165,7 @@ public class Level
 		currentIntensity = 1;
 
 		waypoints = new LinkedList<Waypoint>();
+		doors = new LinkedList<Door>();
 	}
 
 	public void Update(Vector2 pos)
@@ -178,10 +180,12 @@ public class Level
 		// Clicking : Placing Elements
 		if (ip.isMouseButtonDown(0) || ip.isMouseButtonDown(1))
 		{
+			// AI MODE : Waypoints
 			if (mode == Mode.AI.i())
 			{
 				if (ip.isMousePressed(0))
 				{
+					// Links
 					if (ip.isKeyDown(Input.KEY_LCONTROL))
 					{
 						int i = 0;
@@ -227,6 +231,7 @@ public class Level
 						w.removeLink(i);
 				}
 			}
+			// LIGHT MODE : Lights
 			else if (mode == Mode.Light.i())
 			{
 				if (ip.isMousePressed(0))
@@ -255,7 +260,12 @@ public class Level
 			{
 				mouse = SnapToGrid(mouse);
 				if (ip.isMouseButtonDown(0))
-					positions.add(new Obj(new Vector2(mouse.X, mouse.Y), mode, 0));
+				{
+					if (mode == Mode.Door.i())
+						doors.add(new Door(new Vector2(mouse.X, mouse.Y), gridW[mode], gridH[mode]));
+					else
+							positions.add(new Obj(new Vector2(mouse.X, mouse.Y), mode, 0));
+				}
 				else
 				{
 					Clean_List();
@@ -410,6 +420,10 @@ public class Level
 					g.fillRect((float) curr.getPos().X, (float) curr.getPos().Y, gridW[curr.getT()], gridH[curr.getT()]);
 			}
 		}
+		for (Door curr : doors)
+		{
+					g.fillRect((float) curr.getPos().X, (float) curr.getPos().Y, curr.getW(), curr.getH());
+		}
 
 		if (inEditor)
 		{
@@ -542,7 +556,21 @@ public class Level
 						break;
 					String[] p = line.split(" ");
 					Rectangle r = new Rectangle(Integer.valueOf(p[0]), Integer.valueOf(p[1]), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+
 					walls.add(r);
+				}
+			}
+			// Reading doors
+			while ((line = reader.readLine()) != null)
+			{
+				if (!line.equalsIgnoreCase(""))
+				{
+					if (line.charAt(0) == '#')
+						break;
+					String[] p = line.split(" ");
+					Door d = new Door(new Vector2(Integer.valueOf(p[0]), Integer.valueOf(p[1])), Integer.valueOf(p[2]), Integer.valueOf(p[3]));
+
+					doors.add(d);
 				}
 			}
 			// Reading texture positions
@@ -574,8 +602,12 @@ public class Level
 		{
 			if (o.getT() == i)
 				res.add(new Rectangle((int)o.getPos().X, (int)o.getPos().Y, gridW[i], gridH[i]));
-		}
+		}	
 		return res;
+	}
+	public LinkedList<Door> getDoors()
+	{
+		return doors;
 	}
 	public void Save_Level()
 	{
@@ -621,6 +653,20 @@ public class Level
 						(int) curr.getY(),
 						(int) curr.getWidth(),
 						(int) curr.getHeight()));
+			}
+
+			output.write(String.format("\n"));
+			output.write(String.format("\n"));
+			output.write("##--DOORS--##\n");
+
+			for (Door curr : doors)
+			{
+				output.write(String.format(
+						"%d %d %d %d\n",
+						(int) curr.getPos().X,
+						(int) curr.getPos().Y,
+						(int) curr.getW(),
+						(int) curr.getH()));
 			}
 
 			output.write(String.format("\n"));
@@ -684,7 +730,7 @@ public class Level
 	public void printInfo(Graphics g, Vector2 playerPos, double visibility)
 	{
 		g.setColor(Color.yellow);
-		String[] m = new String[] { "Floor", "Wall", "Light", "AI" };
+		String[] m = new String[] { "Floor", "Wall", "Light", "AI", "Door" };
 		g.drawString("Mode : " + m[mode], rect.x + 10, rect.y + 45);
 		g.drawString("(Id: " + currentId + ")", rect.x + 125, rect.y + 45);
 		if (mode == (Mode.Light).i())

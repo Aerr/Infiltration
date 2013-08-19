@@ -57,6 +57,7 @@ public class Ennemy
 	private State state;
 	private Polygon fov;
 	private LinkedList<Polygon> ps;
+	private LinkedList<Rectangle> walls;
 
 	public Vector2 getPos()
 	{
@@ -92,6 +93,7 @@ public class Ennemy
 		old_sign = Vector2.Zero();
 		direction = Vector2.Zero();
 
+		this.walls = walls;
 		UpdateFOV(walls);
 	}
 
@@ -100,9 +102,10 @@ public class Ennemy
 		if (state == State.Suspicious)
 		{
 			this.destination = dest;
+			state = State.Investigating;
 		}
 
-		if ((state == State.Suspicious || state == State.Investigating) && waypoints != null && destination != null)
+		if (state == State.Investigating && waypoints != null && destination != null)
 		{
 			if (startingWaypoint != waypoints.get(0))
 			{
@@ -154,7 +157,7 @@ public class Ennemy
 
 	}
 
-	public void Update(LinkedList<Rectangle> rects, LinkedList<Rectangle> walls, Rectangle playerRect, double visibility)
+	public void Update(Rectangle playerRect, double visibility)
 	{
 		// No need to update when not moving
 		// -> No collisions, no change of angles, no change of position
@@ -205,13 +208,6 @@ public class Ennemy
 				// "YOU'RE INVISIBLE"
 				state = State.Normal;
 		}
-
-		// if (visibility >= 0.35f &&
-		// else if (state == State.Alerted)
-		// state = State.Investigating;
-		// else if (state != State.Investigating)
-		// state = State.Normal;
-
 	}
 
 	private boolean PlayerHidden(int posX, int poY)
@@ -364,38 +360,38 @@ public class Ennemy
 		switch (state)
 		{
 		case Normal:
-			g.setColor(new Color(100, 169, 87, 66));
+			g.setColor(new Color(100, 169, 87, 180));
 			break;
 		case Suspicious:
-			g.setColor(new Color(242, 141, 59, 66));
+			g.setColor(new Color(242, 141, 59, 180));
 			break;
 		case Alerted:
-			g.setColor(new Color(255, 0, 0, 66));
+			g.setColor(new Color(255, 0, 0, 180));
 			break;
 		case Investigating:
-			g.setColor(new Color(255, 125, 0, 66));
+			g.setColor(new Color(255, 125, 0, 180));
 			break;
 		default:
-			g.setColor(new Color(255, 0, 0, 66));
+			g.setColor(new Color(255, 0, 0, 180));
 			break;
 		}
 		g.fill(fov);
-
-		// Hiding area (where player can't be seen by this ennemy)
-		g.setColor(Color.cyan);
-		for (Polygon p : ps)
-			g.fill(p);
-
-		// Waypoints
-		if (startingWaypoint != null && finalWaypoint != null)
-		{
-			g.setColor(Color.green);
-			g.fillOval(startingWaypoint.drawX() - 30, startingWaypoint.drawY() - 30, 60, 60);
-			g.setColor(Color.red);
-			g.fillOval(finalWaypoint.drawX() - 30, finalWaypoint.drawY() - 30, 60, 60);
-			g.setColor(Color.cyan);
-			g.fillOval(destination.drawX() - 30, destination.drawY() - 30, 60, 60);
-		}
+//
+//		// Hiding area (where player can't be seen by this ennemy)
+//		g.setColor(Color.cyan);
+//		for (Polygon p : ps)
+//			g.fill(p);
+//
+//		// Waypoints
+//		if (startingWaypoint != null && finalWaypoint != null)
+//		{
+//			g.setColor(Color.green);
+//			g.fillOval(startingWaypoint.drawX() - 30, startingWaypoint.drawY() - 30, 60, 60);
+//			g.setColor(Color.red);
+//			g.fillOval(finalWaypoint.drawX() - 30, finalWaypoint.drawY() - 30, 60, 60);
+//			g.setColor(Color.cyan);
+//			g.fillOval(destination.drawX() - 30, destination.drawY() - 30, 60, 60);
+//		}
 		/*
 		 * ############# ### DEBUG ### #############
 		 */
